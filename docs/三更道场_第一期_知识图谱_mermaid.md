@@ -105,8 +105,6 @@ flowchart TD
     classDef s fill:#2563eb22,stroke:#2563eb,color:#e6edf3;
     classDef x fill:#ca8a0422,stroke:#ca8a04,color:#e6edf3;
     classDef t fill:#7c3aed22,stroke:#7c3aed,color:#e6edf3;
-    classDef o fill:#dc262622,stroke:#dc2626,color:#e6edf3;
-    linkStyle default stroke:#e6edf355;
 ```
 
 ## 三、案中案重走链（幕四 40' 的承重墙）
