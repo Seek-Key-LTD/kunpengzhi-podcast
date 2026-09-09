@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
 Kunpengzhi Podcast -> Notion Auto Sync Script
-Supports CI/CD workflow and local execution with incremental update support.
+Strict 5-Volume mapping:
+- S00: 总序幕
+- S01-S03: 道名记
+- S04-S06: 石头记
+- S07-S09: 双约记 (含第九期 回音)
+- S08.5: 天权记 (深空第一因与引力弹弓)
+- S10-S12: 列王记 (含第十二期 黄道/黄道十二宫)
 """
 
 import os
@@ -19,19 +25,19 @@ DOCS_DIR = os.path.join(REPO_ROOT, "docs")
 
 EPISODES = [
     {"num": "S00", "title": "第零期 · 缘起 · 借你一双慧眼", "filename": "三更道场_第零期_缘起_正稿_普通话版.md", "volume": "总序幕", "theme": "创世纪·审查样带·人物谱系"},
-    {"num": "S01", "title": "第一期 · 丹 · 辰砂之血与神权做账", "filename": "三更道场_第一期_丹_正稿_普通话版.md", "volume": "石头记", "theme": "辰砂·汞毒·巴寡妇清·神权财政"},
-    {"num": "S02", "title": "第二期 · 哗 · 汉家制度与黄河大工", "filename": "三更道场_第二期_哗_正稿_普通话版.md", "volume": "石头记", "theme": "汉家制度·河工血酬·霸道王道"},
-    {"num": "S03", "title": "第三期 · 瑟 · 绿松石与石国悬案", "filename": "三更道场_第三期_瑟_正稿_普通话版.md", "volume": "石头记", "theme": "高仙芝·石国·绿松石·中亚大崩盘"},
+    {"num": "S01", "title": "第一期 · 丹 · 辰砂之血与神权做账", "filename": "三更道场_第一期_丹_正稿_普通话版.md", "volume": "道名记", "theme": "辰砂·汞毒·巴寡妇清·神权财政"},
+    {"num": "S02", "title": "第二期 · 哗 · 汉家制度与黄河大工", "filename": "三更道场_第二期_哗_正稿_普通话版.md", "volume": "道名记", "theme": "汉家制度·河工血酬·霸道王道"},
+    {"num": "S03", "title": "第三期 · 瑟 · 绿松石与石国悬案", "filename": "三更道场_第三期_瑟_正稿_普通话版.md", "volume": "道名记", "theme": "高仙芝·石国·绿松石·中亚大崩盘"},
     {"num": "S04", "title": "第四期 · 玺 · 传国玉玺与受命之账", "filename": "三更道场_第四期_玺_正稿_普通话版.md", "volume": "石头记", "theme": "传国玉玺·受命于天·法统神话审计"},
-    {"num": "S05", "title": "第五期 · 陨 · 天降星石与大灭绝纪元", "filename": "三更道场_第五期_陨_正稿_普通话版.md", "volume": "天权记", "theme": "新仙女木·陨石撞击·白令海峡·大洪水"},
+    {"num": "S05", "title": "第五期 · 陨 · 天降星石与大灭绝纪元", "filename": "三更道场_第五期_陨_正稿_普通话版.md", "volume": "石头记", "theme": "新仙女木·陨石撞击·白令海峡·大洪水"},
     {"num": "S06", "title": "第六期 · 翡 · 昆仑玉路与西王母国", "filename": "三更道场_第六期_翡_正稿_普通话版.md", "volume": "石头记", "theme": "玉石之路·阿尔金山·青玉·早期全球化"},
     {"num": "S07", "title": "第七期 · 血酬 · 岁币对冲与澶渊之盟", "filename": "三更道场_第七期_血酬_正稿_普通话版.md", "volume": "双约记", "theme": "澶渊之盟·岁币博弈·宋辽地缘金融"},
     {"num": "S08", "title": "第八期 · 铁幕 · 雅尔塔与第一岛链", "filename": "三更道场_第八期_铁幕_正稿_普通话版.md", "volume": "双约记", "theme": "雅尔塔·旧金山和约·第一岛链·冷战条约法医"},
     {"num": "S08.5", "title": "第八期半 · 天权 · 深空第一因与引力弹弓", "filename": "三更道场_第八期半_天权_正稿_普通话版.md", "volume": "天权记", "theme": "木星引力·拉格朗日点·开普勒偏心率·深空第一因"},
-    {"num": "S09", "title": "第九期 · 回音 · 莫高窟与藏经洞大账", "filename": "三更道场_第九期_回音_正稿_普通话版.md", "volume": "天权记", "theme": "敦煌文书·90万年大同古湖·瓦罕走廊大洪水"},
-    {"num": "S10", "title": "第十期 · 割席 · 儒法之辨与道统重构", "filename": "三更道场_第十期_割席_正稿_普通话版.md", "volume": "道名记", "theme": "徐复观·熊十力·儒道分流·认识论断裂"},
-    {"num": "S11", "title": "第十一期 · 筑基 · 印欧语东进与华夏发生学", "filename": "三更道场_第十一期_筑基_正稿_普通话版.md", "volume": "筑基篇", "theme": "吐火罗语·PIE构拟·白-沙上古音·大空间语言流形"},
-    {"num": "S12", "title": "第十二期 · 黄道 · 二十八宿与华夏星图", "filename": "三更道场_第十二期_黄道_正稿_普通话版.md", "volume": "天权记", "theme": "天球四层星空·岁差·北斗秤学·华夏星空坐标"},
+    {"num": "S09", "title": "第九期 · 回音 · 莫高窟与藏经洞大账", "filename": "三更道场_第九期_回音_正稿_普通话版.md", "volume": "双约记", "theme": "敦煌文书·90万年大同古湖·瓦罕走廊大洪水"},
+    {"num": "S10", "title": "第十期 · 割席 · 儒法之辨与道统重构", "filename": "三更道场_第十期_割席_正稿_普通话版.md", "volume": "列王记", "theme": "徐复观·熊十力·儒道分流·认识论断裂"},
+    {"num": "S11", "title": "第十一期 · 筑基 · 印欧语东进与华夏发生学", "filename": "三更道场_第十一期_筑基_正稿_普通话版.md", "volume": "列王记", "theme": "吐火罗语·PIE构拟·白-沙上古音·大空间语言流形"},
+    {"num": "S12", "title": "第十二期 · 黄道 · 二十八宿与华夏星图", "filename": "三更道场_第十二期_黄道_正稿_普通话版.md", "volume": "列王记", "theme": "黄道十二宫·二十八宿·岁差·北斗秤学·全景大合龙"},
 ]
 
 def notion_request(endpoint, method="POST", data=None):
@@ -169,7 +175,7 @@ def clear_block_children(block_id):
     for b in res.get("results", []):
         try:
             notion_request(f"blocks/{b['id']}", method="DELETE")
-            time.sleep(0.1)
+            time.sleep(0.08)
         except Exception:
             pass
 
@@ -218,11 +224,11 @@ def sync_all():
                     "select": {
                         "options": [
                             {"name": "总序幕", "color": "purple"},
-                            {"name": "石头记", "color": "blue"},
-                            {"name": "天权记", "color": "orange"},
-                            {"name": "双约记", "color": "red"},
                             {"name": "道名记", "color": "green"},
-                            {"name": "筑基篇", "color": "pink"}
+                            {"name": "石头记", "color": "blue"},
+                            {"name": "双约记", "color": "red"},
+                            {"name": "天权记", "color": "orange"},
+                            {"name": "列王记", "color": "pink"}
                         ]
                     }
                 },
@@ -243,6 +249,22 @@ def sync_all():
         print(f"[+] Created Database: {db_id}")
     else:
         print(f"[*] Found existing Episodes Database: {db_id}")
+        notion_request(f"databases/{db_id}", method="PATCH", data={
+            "properties": {
+                "卷次": {
+                    "select": {
+                        "options": [
+                            {"name": "总序幕", "color": "purple"},
+                            {"name": "道名记", "color": "green"},
+                            {"name": "石头记", "color": "blue"},
+                            {"name": "双约记", "color": "red"},
+                            {"name": "天权记", "color": "orange"},
+                            {"name": "列王记", "color": "pink"}
+                        ]
+                    }
+                }
+            }
+        })
 
     existing_pages = query_db_pages(db_id)
 
@@ -258,19 +280,32 @@ def sync_all():
         
         char_count = len(content)
         title_key = f"[{item['num']}] {item['title']}"
-        print(f"--> Syncing {title_key} ({char_count} chars)...")
+        print(f"\n--> Syncing {title_key} ({char_count} chars) -> 【{item['volume']}】...")
+        
+        blocks = md_to_blocks(content)
         
         if title_key in existing_pages:
             page_id = existing_pages[title_key]
-            # Update metadata
+            # Update metadata & tags
             notion_request(f"pages/{page_id}", method="PATCH", data={
                 "properties": {
+                    "卷次": {"select": {"name": item["volume"]}},
                     "字数/规模": {"number": char_count},
-                    "核心主题": {"rich_text": [{"type": "text", "text": {"content": item["theme"]}}]}
+                    "核心主题": {"rich_text": [{"type": "text", "text": {"content": item["theme"]}}]},
+                    "状态": {"select": {"name": "定稿完全版"}}
                 }
             })
-            # Refresh content
-            clear_block_children(page_id)
+            # Check existing blocks count
+            blocks_res = notion_request(f"blocks/{page_id}/children?page_size=10", method="GET")
+            existing_blocks_count = len(blocks_res.get("results", []))
+            
+            # If incomplete or S11/S12, clear and re-upload full text
+            if existing_blocks_count < 5 or item["num"] in ["S11", "S12"]:
+                print(f"    Page content incomplete/missing, re-uploading all {len(blocks)} blocks...")
+                clear_block_children(page_id)
+                append_blocks_chunked(page_id, blocks, chunk_size=80)
+            else:
+                print(f"    Page metadata updated (Blocks already present: {existing_blocks_count}+).")
         else:
             page_payload = {
                 "parent": {"database_id": db_id},
@@ -285,9 +320,9 @@ def sync_all():
             }
             page_res = notion_request("pages", method="POST", data=page_payload)
             page_id = page_res["id"]
-        
-        blocks = md_to_blocks(content)
-        append_blocks_chunked(page_id, blocks, chunk_size=80)
+            print(f"    Created new page {page_id}, uploading {len(blocks)} blocks...")
+            append_blocks_chunked(page_id, blocks, chunk_size=80)
+            
         print(f"    [OK] {item['num']} Synced!")
 
     # Sync Character Assets
@@ -315,7 +350,7 @@ def sync_all():
         append_blocks_chunked(char_page_id, char_blocks, chunk_size=80)
         print("    [OK] Character Assets Synced!")
 
-    print("\n[SUCCESS] Notion synchronization complete!")
+    print("\n[SUCCESS] Notion synchronization complete with updated volume mappings!")
 
 if __name__ == "__main__":
     sync_all()
