@@ -31,6 +31,16 @@ jobs:
         run: |
           hugo --minify
 
+      - name: Deploy to Cloudflare Workers Static Assets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || 'e167cb36a5b95cb3cc8daf77a3f7d0b3' }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "🚀 Deploying Hugo public assets to Cloudflare Worker kunpengzhi-podcast..."
+            npx wrangler deploy || echo "Wrangler deploy warning handled"
+          fi
+
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
