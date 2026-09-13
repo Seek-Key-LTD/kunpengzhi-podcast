@@ -27,7 +27,7 @@ jobs:
 
       - name: Run Notion Sync Script
         env:
-          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN || 'NOTION_TOKEN_FROM_VAULT' }}
-          NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID || '300c1384-f34d-8098-bbc4-d0902ac81d54' }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID }}
         run: |
           python3 scripts/sync_notion.py

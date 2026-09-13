@@ -1,0 +1,10 @@
+# Kunpengzhi Podcast Codeowners & Reviewers
+
+# 正典文档与专栏
+/docs/                  @Seek-Key-LTD
+/tasks_第二季工单池/    @Seek-Key-LTD
+
+# 流水线与脚本
+/scripts/               @Seek-Key-LTD
+/.github/               @Seek-Key-LTD
+/.gitea/                @Seek-Key-LTD

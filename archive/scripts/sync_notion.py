@@ -17,7 +17,7 @@ import json
 import urllib.request
 import urllib.error
 
-NOTION_TOKEN = os.environ.get("NOTION_TOKEN", "NOTION_TOKEN_FROM_VAULT")
+NOTION_TOKEN = os.environ.get("NOTION_TOKEN", "")
 PARENT_PAGE_ID = os.environ.get("NOTION_PARENT_PAGE_ID", "300c1384-f34d-8098-bbc4-d0902ac81d54")
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

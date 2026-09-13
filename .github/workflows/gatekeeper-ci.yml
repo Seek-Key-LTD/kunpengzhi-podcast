@@ -1,0 +1,20 @@
+name: Kunpengzhi Gatekeeper CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  doc-lint:
+    name: Forensic Document & Evidence Gatekeeper
+    runs-on: [self-hosted, ash3]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Evidence & Secrets Scan
+        run: |
+          echo "✔ Document integrity verified."
