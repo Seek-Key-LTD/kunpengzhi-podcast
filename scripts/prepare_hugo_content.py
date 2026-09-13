@@ -14,50 +14,29 @@ def clean_and_make_dir():
     os.makedirs(os.path.join(CONTENT_DIR, "canon"), exist_ok=True)
     os.makedirs(os.path.join(CONTENT_DIR, "special"), exist_ok=True)
 
-def get_canon_weight(fname):
-    if "第零期" in fname or "第0期" in fname:
-        return 0
-    if "第一期" in fname or "第1期" in fname:
-        return 1
-    if "第二期" in fname or "第2期" in fname:
-        return 2
-    if "第三期" in fname or "第3期" in fname:
-        return 3
-    if "第四期" in fname or "第4期" in fname:
-        return 4
-    if "第五期" in fname or "第5期" in fname:
-        return 5
-    if "第六期" in fname or "第6期" in fname:
-        return 6
-    if "第七期" in fname or "第7期" in fname:
-        return 7
-    if "第八期半" in fname:
-        return 9
-    if "第八期" in fname or "第8期" in fname:
-        return 8
-    if "第九期" in fname or "第9期" in fname:
-        return 10
-    if "第十期" in fname or "第10期" in fname:
-        return 11
-    if "第十一期" in fname or "第11期" in fname:
-        return 12
-    if "第十二期" in fname or "第12期" in fname:
-        return 13
-    if "尾声" in fname:
-        return 99
-    return 50
+CANON_MAP = {
+    "第零期": {"weight": 0, "title": "第零期 · 缘起 · 借你一双慧眼"},
+    "第一期": {"weight": 1, "title": "第一期 · 道名 · 丹 ♈"},
+    "第二期": {"weight": 2, "title": "第二期 · 道名 · 哗 ♉"},
+    "第三期": {"weight": 3, "title": "第三期 · 道名 · 瑟 ♊"},
+    "第四期": {"weight": 4, "title": "第四期 · 石头 · 玺 ♋"},
+    "第五期": {"weight": 5, "title": "第五期 · 石头 · 陨 ♌"},
+    "第六期": {"weight": 6, "title": "第六期 · 石头 · 翡 ♍"},
+    "第七期": {"weight": 7, "title": "第七期 · 双约 · 血酬 ♎"},
+    "第八期半": {"weight": 9, "title": "第八期半 · 天权 · 天权 ⛎"},
+    "第八期_": {"weight": 8, "title": "第八期 · 双约 · 铁幕 ♏"},
+    "第九期": {"weight": 10, "title": "第九期 · 双约 · 回音 ♐"},
+    "第十期": {"weight": 11, "title": "第十期 · 列王 · 割席 ♑"},
+    "第十一期": {"weight": 12, "title": "第十一期 · 列王 · 筑基 ♒"},
+    "第十二期": {"weight": 13, "title": "第十二期 · 列王 · 黄道 ♓"},
+    "尾声": {"weight": 99, "title": "尾声 · 闭门复盘 ⭕"},
+}
 
-def clean_canon_title(raw_title):
-    # Remove leading markdown #
-    title = re.sub(r"^#+\s*", "", raw_title)
-    # Remove 《三更道场》 or 三更道场 prefixes
-    title = re.sub(r"^《?三更道场》?[\s·:：]*", "", title)
-    # Clean up redundant positive text notes
-    title = re.sub(r"（正稿.*?）", "", title)
-    title = re.sub(r"正稿（.*?）", "", title)
-    title = re.sub(r"\s*·\s*正稿.*$", "", title)
-    title = re.sub(r"\s*正稿.*$", "", title)
-    return title.strip(" ·:：-—")
+def get_canon_meta(fname):
+    for key, meta in CANON_MAP.items():
+        if key in fname:
+            return meta["weight"], meta["title"]
+    return 50, fname
 
 def process_file(src_path, dest_path, section_name, weight=None, custom_title=None):
     with open(src_path, "r", encoding="utf-8") as f:
@@ -106,19 +85,19 @@ def main():
                 print(f"  [Skip Duplicate 前传] {fname}")
                 continue
             if "正稿" in fname:
-                weight = get_canon_weight(fname)
-                files_to_process.append((weight, fname, fpath))
+                weight, title = get_canon_meta(fname)
+                files_to_process.append((weight, title, fname, fpath))
             else:
                 print(f"  [Skip Draft/Internal] {fname}")
 
     # Sort numerically by weight ascending
     files_to_process.sort(key=lambda x: x[0])
 
-    for weight, fname, fpath in files_to_process:
+    for weight, title, fname, fpath in files_to_process:
         dest = os.path.join(CONTENT_DIR, "canon", fname)
-        process_file(fpath, dest, "canon", weight=weight)
+        process_file(fpath, dest, "canon", weight=weight, custom_title=title)
         published_count += 1
-        print(f"  [{weight:02d}] Published Canon: {fname}")
+        print(f"  [{weight:02d}] Published Canon: {title}")
 
     # 2. Special Popout Assets: 人物资产图 & 诗词集
     persona_src = os.path.join(TASKS_DIR, "五卷人物资产_v1.md")
