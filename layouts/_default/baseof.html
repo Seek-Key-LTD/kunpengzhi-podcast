@@ -32,7 +32,7 @@
         {{ $canon := (where .Site.RegularPages "Section" "canon").ByWeight }}
         {{ if gt (len $canon) 0 }}
         <details open class="nav-group">
-          <summary>📜 第一季 · 打舵（五卷正典）</summary>
+          <summary>⎈ 第一季 · 打舵（五卷正典）</summary>
           <ul>
             {{ range $canon }}
             <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
