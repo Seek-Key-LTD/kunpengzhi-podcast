@@ -204,6 +204,77 @@ signing_and_revocation_keys, protocol_version
 
 在参赛者自有机器上，无法可靠证明容器外没有总控 Agent。因此官方成绩必须在受控 runner 中产生：参赛者提交镜像与适配器，服务器实例化席位，封存场景只在开赛后下发，赛后公开全量事件链和揭盲信息。
 
+### 5.3 联邦部署、Nomad 调度与 Always-Up Covenant
+
+`key-agent` 只是系统集成中的一个运行组件。ASN 的目标部署形态是至少两个、理想三个以上司法辖区中的联邦节点：这服务于可用性、灾难恢复、数据驻留与对单一厂商/机房故障的韧性，**不服务于隐藏来源、规避地域限制、绕过限流或逃避服务条款**。
+
+任何模型供应商都可能因区域可用性、政策、容量、账户风控或产品调整而改变能力。系统不猜测其政治动机，也不要求 Agent “骗过”某个模型服务；应把可用边界转为可审计、可更新的调度约束。
+
+#### 5.3.1 Agent Card 与 Node Card 分离
+
+Agent Card 表示“谁在说话”；Node Card 表示“此刻由哪个可验证的运行实例承载”。前者保持席位连续性，后者可随故障、区域和容量切换。
+
+```yaml
+node_card:
+  node_id: "opaque-node-id"
+  jurisdiction_profile: "region-and-data-residency-policy"
+  runtime_image_digest: "sha256:..."
+  provider: "declared-provider"
+  model_id: "declared-model"
+  model_revision: "provider-version-or-date"
+  credential_tenant: "opaque-credential-reference"
+  egress_policy: "allowlist-policy-id"
+  capacity: { max_concurrency: 0, token_budget: 0 }
+  rate_limit_policy: "policy-id"
+  data_classes_allowed: ["public", "collaborative"]
+  topic_policy_pack: "signed-policy-pack-version"
+  health: "attested-health-state"
+```
+
+真实出口 IP、密钥、账号主体、精确机房与私密提示词不得写入公开 Card；它们只应在受控审计域以最小必要方式保留。
+
+#### 5.3.2 Provider Policy Pack：把用户协议变为可执行约束
+
+每个已接入模型/工具维护一个签名的 `Provider Policy Pack`，把相应用户协议、数据处理约定和运行限制编译为机器可读规则：
+
+| 规则面 | 需声明的内容 |
+|---|---|
+| 地域与数据驻留 | 哪些辖区可调度；哪些数据类别不可出域 |
+| 模型与版本 | 服务商、模型 ID、版本/日期、能力与已知限制 |
+| 话题与用途 | 允许、需人工复核、拒绝的用途分类；不以“提示词改写”绕过拒绝 |
+| 数据处理 | 是否可发送私密材料、保留期、训练/日志选项、脱敏要求 |
+| 额度与成本 | 并发、速率、token/日预算与计费主体 |
+| 事件响应 | 429、拒答、警告、策略变更、密钥撤销或区域故障时的暂停/降级路径 |
+
+Policy Pack 是合规和可用性路由，不是内容真伪裁判。一个命题是否成立由 Claim Ledger 和证据审计回答；某一服务能否承载它由 Policy Pack 回答。
+
+#### 5.3.3 Nomad 的硬约束、软约束与降级
+
+Nomad 调度需读取冻结的 Agent Card、Node Card、Policy Pack 和本局数据分类：
+
+```text
+Hard constraints（不可违反）
+  - 席位隔离、签名镜像、允许的辖区与数据驻留
+  - 工具/模型 allowlist、预算上限、认证赛道禁止子 Agent
+  - 未获授权的私密记忆不得出域
+
+Soft constraints（尽量优化）
+  - 延迟、成本、队列长度、节点健康、同厂商集中度
+  - 区域冗余与灾备优先级
+```
+
+`always up` 的含义是 ASN 的身份、账本、公开资料和合规降级路径持续可用；它**不等于**任何时刻、任何题目、任何模型都必须响应。一个供应商不可用或不允许时，调度器只能：排队、指数退避、切换到事先声明且兼容的数据/地域/用途节点、转为只读证据模式，或明确返回“该能力当前不可用”。
+
+429 的正确处理是并发闸门、配额预算、指数退避加抖动、熔断、健康检查和经授权的故障转移；不得靠多账号轮换、伪造来源或自动重写提示词反复撞规则。遇到服务警告、拒答或策略变化，应冻结相关调用、记录最小化事件元数据、重新分类任务并在必要时人工复核。
+
+#### 5.3.4 多国部署的最小验收
+
+1. 任一辖区/供应商节点失效后，身份与公开命题账本仍可读取；
+2. 私域记忆不会因故障转移而被复制到未授权辖区；
+3. Agent 的席位连续，但每次 Node 切换均可追溯；
+4. 同一任务不会因切换节点而悄然改变模型版本、工具权能或证据包；
+5. 所有降级、拒绝、排队和人工复核都留下可审计理由。
+
 ---
 
 ## 6. 与《鲲鹏志》AI 的 4V4 演武接口
@@ -237,7 +308,8 @@ signing_and_revocation_keys, protocol_version
 | `mem-ops` | `paper7-soul-swapping.md` | 1、4：精气魂魄与 MML v2 分叉 |
 | `mem-ops` | `docs/design-mongodb.md` / n8n 文档 | 2.1、3：授权、溯源、不可静默丢弃审计材料 |
 | `key-agent` | 新 `docs/asn-certified-profile.md` | 5：认证节点协议 |
-| `key-agent` | Runner policy plugin / middleware | `SingleSeatMode`、allowlist、attestation |
+| `key-agent` | Runner policy plugin / middleware | `SingleSeatMode`、allowlist、attestation、Policy Pack 解释器 |
+| `key-agent` / Nomad | 新 `docs/federated-scheduling.md` | 5.3：Node Card、多国调度、降级与故障转移 |
 | `kunpengzhi-ai` | Arena / Vibe Debating 规则 | 6：4V4 的席位包、现场卡与评分 |
 | `kunpengzhi-podcast` | IDP 数据治理与人物资产 | 1、3：角色资产编译为可授权席位包 |
 
@@ -251,6 +323,7 @@ signing_and_revocation_keys, protocol_version
 2. 给所有字段定义 `public / collaborative / private / sealed` 可见性；
 3. 将历史文档中的真实凭据、私钥、网络路径迁出版本库，改为密钥引用，并检查是否需要轮换；
 4. 明确 Vault、Cognitive Ledger、Economic Settlement 的三个所有权边界。
+5. 定义 Node Card 与 Provider Policy Pack，禁止将真实出口、密钥或私密提示词写入公开配置。
 
 **验收**：可用一个虚构席位完成开户、授权、撤销、分叉和 Claim v0→v1 的全流程，不接触真实资金或敏感记忆。
 
@@ -287,3 +360,5 @@ signing_and_revocation_keys, protocol_version
 4. 认证赛道是否允许只读检索工具；允许时如何记录其语料与结果？
 5. 第一批接入人物席位：以《三更道场》18 位主理人为先，还是先以现有 Zodiac Cabinet 作协议试验？
 6. 贡献结算是否先采用不可转让凭证，直至正式合规审查完成？
+7. 首批联邦节点选择哪些司法辖区；每一辖区承载哪些数据类别？
+8. Provider Policy Pack 的更新权、紧急熔断权与人工复核责任由谁承担？
