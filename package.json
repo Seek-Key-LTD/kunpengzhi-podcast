@@ -1,0 +1,13 @@
+{
+  "name": "kunpengzhi-podcast",
+  "version": "1.0.0",
+  "description": "鲲鹏志 · 播客五卷正典与因陀罗网络法医账本",
+  "scripts": {
+    "prepare-content": "python3 scripts/prepare_hugo_content.py",
+    "build": "python3 scripts/prepare_hugo_content.py && hugo --minify",
+    "hugo": "hugo"
+  },
+  "devDependencies": {
+    "hugo-bin": "^0.119.0"
+  }
+}
