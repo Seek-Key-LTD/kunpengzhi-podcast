@@ -17,7 +17,7 @@
         <div class="brand-sub">KUNPENGZHI PODCAST · IDP</div>
       </div>
       <nav class="nav-tree">
-        {{ $canon := where .Site.RegularPages "Section" "canon" }}
+        {{ $canon := (where .Site.RegularPages "Section" "canon").ByWeight }}
         {{ if gt (len $canon) 0 }}
         <details open class="nav-group">
           <summary>📜 主线正典（三更道场 · 正稿）</summary>

@@ -15,7 +15,42 @@ def clean_and_make_dir():
     os.makedirs(os.path.join(CONTENT_DIR, "spinoff"), exist_ok=True)
     os.makedirs(os.path.join(CONTENT_DIR, "tasks"), exist_ok=True)
 
-def process_file(src_path, dest_path, section_name):
+def get_canon_weight(fname):
+    if "前传" in fname:
+        return 0
+    if "第零期" in fname or "第0期" in fname:
+        return 1
+    if "第一期" in fname or "第1期" in fname:
+        return 2
+    if "第二期" in fname or "第2期" in fname:
+        return 3
+    if "第三期" in fname or "第3期" in fname:
+        return 4
+    if "第四期" in fname or "第4期" in fname:
+        return 5
+    if "第五期" in fname or "第5期" in fname:
+        return 6
+    if "第六期" in fname or "第6期" in fname:
+        return 7
+    if "第七期" in fname or "第7期" in fname:
+        return 8
+    if "第八期半" in fname:
+        return 10
+    if "第八期" in fname or "第8期" in fname:
+        return 9
+    if "第九期" in fname or "第9期" in fname:
+        return 11
+    if "第十期" in fname or "第10期" in fname:
+        return 12
+    if "第十一期" in fname or "第11期" in fname:
+        return 13
+    if "第十二期" in fname or "第12期" in fname:
+        return 14
+    if "尾声" in fname:
+        return 99
+    return 50
+
+def process_file(src_path, dest_path, section_name, weight=None):
     with open(src_path, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -26,6 +61,7 @@ def process_file(src_path, dest_path, section_name):
         title = h1_match.group(1).strip()
 
     title_safe = title.replace('"', '\\"')
+    weight_str = f"weight: {weight}\n" if weight is not None else ""
 
     # If frontmatter doesn't exist, add it
     if not content.startswith("---"):
@@ -34,7 +70,7 @@ title: "{title_safe}"
 date: 2026-09-13
 draft: false
 section: "{section_name}"
----
+{weight_str}---
 
 """
         content = frontmatter + content
@@ -44,20 +80,28 @@ section: "{section_name}"
 
 def main():
     clean_and_make_dir()
-    print("🚀 Preparing Hugo content (Publishing Official Final Scripts only)...")
+    print("🚀 Preparing Hugo content (Publishing Official Final Scripts with Name/Weight Alignment)...")
 
     # 1. Main canon docs (Only official finalized manuscripts: *正稿*.md)
     published_count = 0
-    for fname in sorted(os.listdir(DOCS_DIR)):
+    files_to_process = []
+    for fname in os.listdir(DOCS_DIR):
         fpath = os.path.join(DOCS_DIR, fname)
         if os.path.isfile(fpath) and fname.endswith(".md"):
             if "正稿" in fname:
-                dest = os.path.join(CONTENT_DIR, "canon", fname)
-                process_file(fpath, dest, "canon")
-                published_count += 1
+                weight = get_canon_weight(fname)
+                files_to_process.append((weight, fname, fpath))
             else:
-                # Non-finalized or internal notes remain draft
                 print(f"  [Skip Draft/Internal] {fname}")
+
+    # Sort numerically by weight ascending
+    files_to_process.sort(key=lambda x: x[0])
+
+    for weight, fname, fpath in files_to_process:
+        dest = os.path.join(CONTENT_DIR, "canon", fname)
+        process_file(fpath, dest, "canon", weight=weight)
+        published_count += 1
+        print(f"  [{weight:02d}] Published: {fname}")
 
     print(f"✔ Hugo content prepared: {published_count} official canon manuscripts published.")
 

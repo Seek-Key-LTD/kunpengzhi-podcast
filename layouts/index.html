@@ -8,7 +8,7 @@
   </p>
 </div>
 
-{{ $canon := where .Site.RegularPages "Section" "canon" }}
+{{ $canon := (where .Site.RegularPages "Section" "canon").ByWeight }}
 {{ if gt (len $canon) 0 }}
 <section class="grid-section">
   <h2 class="grid-title">📜 主线正典（三更道场 · 15期完整录播正稿）</h2>
