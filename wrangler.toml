@@ -1,0 +1,9 @@
+name = "kunpengzhi-podcast"
+compatibility_date = "2026-09-13"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[build]
+command = "npm run build"
