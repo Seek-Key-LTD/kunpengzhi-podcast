@@ -38,7 +38,7 @@ jobs:
 
       - name: Build with Hugo
         run: |
-          hugo --minify --baseURL "https://seek-key-ltd.github.io/kunpengzhi-podcast/"
+          hugo --minify
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
