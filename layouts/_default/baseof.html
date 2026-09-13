@@ -7,31 +7,48 @@
   <link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
-  <aside class="sidebar">
-    <h1><a href="{{ .Site.BaseURL }}" style="color: var(--gold); text-decoration: none;">鲲鹏志 · 播客</a></h1>
-    <div class="tagline">五卷人物正典 · 18 智者专栏 · 法医会计审计</div>
-    <nav>
-      <ul>
-        <li><strong>📜 主线正典（三更道场）</strong></li>
-        {{ range (where .Site.RegularPages "Section" "canon") }}
-        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-        {{ end }}
-        <li style="margin-top: 16px;"><strong>🌌 智者专栏 (Spinoff)</strong></li>
-        {{ range (where .Site.RegularPages "Section" "spinoff") }}
-        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-        {{ end }}
-        <li style="margin-top: 16px;"><strong>⚖️ 法医工单与特藏</strong></li>
-        {{ range (where .Site.RegularPages "Section" "tasks") }}
-        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-        {{ end }}
-      </ul>
-    </nav>
-  </aside>
-  <main class="content">
-    {{ block "main" . }}{{ end }}
-  </main>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <a href="{{ .Site.BaseURL }}" class="brand-title">鲲鹏志 · 播客</a>
+        <div class="brand-sub">KUNPENGZHI PODCAST · IDP</div>
+      </div>
+      <nav class="nav-tree">
+        <details open class="nav-group">
+          <summary>📜 主线正典（三更道场）</summary>
+          <ul>
+            {{ range (where .Site.RegularPages "Section" "canon") }}
+            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+            {{ end }}
+          </ul>
+        </details>
+
+        <details open class="nav-group">
+          <summary>🌌 18 智者专栏 (Spinoff)</summary>
+          <ul>
+            {{ range (where .Site.RegularPages "Section" "spinoff") }}
+            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+            {{ end }}
+          </ul>
+        </details>
+
+        <details class="nav-group">
+          <summary>⚖️ 第二季工单 · 法医审计底册</summary>
+          <ul>
+            {{ range (where .Site.RegularPages "Section" "tasks") }}
+            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+            {{ end }}
+          </ul>
+        </details>
+      </nav>
+    </aside>
+
+    <main class="main-viewport">
+      {{ block "main" . }}{{ end }}
+    </main>
+  </div>
 </body>
 </html>
