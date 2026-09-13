@@ -1,0 +1,17 @@
+baseURL = "https://seek-key-ltd.github.io/kunpengzhi-podcast/"
+languageCode = "zh-CN"
+title = "鲲鹏志 · 播客正典与因陀罗网络法医账本"
+theme = "hugo-book"
+
+[params]
+  description = "内容驱动 AI 辩论系统 · 五卷人物正典 · 18 智者专栏 · 历史法医会计审计"
+  BookTheme = 'dark'
+  BookMenuBundle = '/menu'
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 4

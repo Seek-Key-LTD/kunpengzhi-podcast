@@ -1,0 +1,25 @@
+{{ define "main" }}
+<article>
+  <h1 style="font-size: 2.2rem; border-bottom: 2px solid var(--gold); padding-bottom: 12px;">鲲鹏志 · 播客五卷正典</h1>
+  <p style="font-size: 1.15rem; color: var(--gold); margin: 1.5em 0;">
+    「出门在外，身份是自己给的 —— 光驳论不立论，飞轮转不起来。」
+  </p>
+  <p>
+    本站为因陀罗网络（ASN / IDP）的内容引擎，收录《三更道场》十五期主线全稿、18 智者专栏（普陀鱼尾狮吼、智春踹忑一角、竹狐桃源格竹等）与法医级历史账目底册。
+  </p>
+
+  <h2>最新主线篇章</h2>
+  <ul>
+    {{ range first 8 (where .Site.RegularPages "Section" "canon") }}
+    <li style="margin-bottom: 10px;"><a href="{{ .RelPermalink }}" style="color: var(--gold); text-decoration: none;">{{ .Title }}</a></li>
+    {{ end }}
+  </ul>
+
+  <h2>智者专栏与法医底册</h2>
+  <ul>
+    {{ range first 8 (where .Site.RegularPages "Section" "spinoff") }}
+    <li style="margin-bottom: 10px;"><a href="{{ .RelPermalink }}" style="color: var(--gold); text-decoration: none;">{{ .Title }}</a></li>
+    {{ end }}
+  </ul>
+</article>
+{{ end }}
