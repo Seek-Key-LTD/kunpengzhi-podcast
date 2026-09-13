@@ -396,8 +396,69 @@ article.article-view h1 {
   color: var(--gold);
 }
 
+/* Footer & License */
+.site-footer {
+  margin-top: 60px;
+  padding-top: 30px;
+  border-top: 1px solid var(--border-gold);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+.footer-license {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.license-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.license-badge {
+  display: inline-block;
+  font-family: 'Cinzel', 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(232, 196, 106, 0.12);
+  border: 1px solid var(--border-gold);
+  color: var(--gold);
+}
+
+.license-badge-cc {
+  background: rgba(78, 201, 176, 0.12);
+  border-color: rgba(78, 201, 176, 0.35);
+  color: var(--cyan);
+}
+
+.copyright-line {
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.license-desc {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.license-desc a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.license-desc a:hover {
+  color: var(--gold-light);
+}
+
 @media (max-width: 860px) {
   .app-layout { flex-direction: column; }
   aside.sidebar { width: 100%; height: auto; position: static; }
   main.main-viewport { padding: 24px 16px; }
 }
+
