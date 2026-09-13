@@ -50,7 +50,7 @@ jobs:
   sync-r2:
     name: Sync Markdown Assets to Cloudflare R2
     runs-on: ubuntu-latest
-    if: env.R2_ACCESS_KEY_ID != '' || env.CLOUDFLARE_API_TOKEN != ''
+    if: ${{ secrets.R2_ACCESS_KEY_ID != '' || secrets.CLOUDFLARE_API_TOKEN != '' }}
     env:
       R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
       R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
