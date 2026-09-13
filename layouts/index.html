@@ -4,14 +4,16 @@
   <h1 class="hero-title">鲲鹏志 · 播客正典与法医底册</h1>
   <p class="hero-desc">
     「出门在外，身份是自己给的 —— 光驳论不立论，飞轮转不起来。」<br>
-    收录《三更道场》十五期主线全稿、18 智者专栏（普陀·鱼尾狮吼、智春·踹忑一角、竹狐·桃源格竹等）与法医级历史账本。
+    收录《三更道场》十五期主线全稿正典与法医级历史账本。
   </p>
 </div>
 
+{{ $canon := where .Site.RegularPages "Section" "canon" }}
+{{ if gt (len $canon) 0 }}
 <section class="grid-section">
-  <h2 class="grid-title">📜 主线正典（三更道场 · 15期完整录播文稿）</h2>
+  <h2 class="grid-title">📜 主线正典（三更道场 · 15期完整录播正稿）</h2>
   <div class="card-grid">
-    {{ range (where .Site.RegularPages "Section" "canon") }}
+    {{ range $canon }}
     <a href="{{ .RelPermalink }}" class="card">
       <div class="card-title">{{ .Title }}</div>
       <div class="card-snippet">{{ .Summary | truncate 80 }}</div>
@@ -19,11 +21,14 @@
     {{ end }}
   </div>
 </section>
+{{ end }}
 
+{{ $spinoff := where .Site.RegularPages "Section" "spinoff" }}
+{{ if gt (len $spinoff) 0 }}
 <section class="grid-section">
   <h2 class="grid-title">🌌 18 智者专栏与演进档案 (Spinoff)</h2>
   <div class="card-grid">
-    {{ range (where .Site.RegularPages "Section" "spinoff") }}
+    {{ range $spinoff }}
     <a href="{{ .RelPermalink }}" class="card">
       <div class="card-title">{{ .Title }}</div>
       <div class="card-snippet">{{ .Summary | truncate 80 }}</div>
@@ -31,11 +36,14 @@
     {{ end }}
   </div>
 </section>
+{{ end }}
 
+{{ $tasks := where .Site.RegularPages "Section" "tasks" }}
+{{ if gt (len $tasks) 0 }}
 <section class="grid-section">
   <h2 class="grid-title">⚖️ 第二季工单池 · 法医审计底册 (Tasks & Forensics)</h2>
   <div class="card-grid">
-    {{ range (where .Site.RegularPages "Section" "tasks") }}
+    {{ range $tasks }}
     <a href="{{ .RelPermalink }}" class="card">
       <div class="card-title">{{ .Title }}</div>
       <div class="card-snippet">{{ .Summary | truncate 80 }}</div>
@@ -43,4 +51,5 @@
     {{ end }}
   </div>
 </section>
+{{ end }}
 {{ end }}

@@ -44,31 +44,22 @@ section: "{section_name}"
 
 def main():
     clean_and_make_dir()
-    print("🚀 Preparing Hugo content from docs and tasks...")
+    print("🚀 Preparing Hugo content (Publishing Official Final Scripts only)...")
 
-    # 1. Main canon docs
+    # 1. Main canon docs (Only official finalized manuscripts: *正稿*.md)
+    published_count = 0
     for fname in sorted(os.listdir(DOCS_DIR)):
         fpath = os.path.join(DOCS_DIR, fname)
         if os.path.isfile(fpath) and fname.endswith(".md"):
-            dest = os.path.join(CONTENT_DIR, "canon", fname)
-            process_file(fpath, dest, "canon")
-        elif os.path.isdir(fpath) and fname.startswith("spinoff_"):
-            for sub_fname in sorted(os.listdir(fpath)):
-                if sub_fname.endswith(".md"):
-                    sub_fpath = os.path.join(fpath, sub_fname)
-                    dest_fname = f"{fname}_{sub_fname}"
-                    dest = os.path.join(CONTENT_DIR, "spinoff", dest_fname)
-                    process_file(sub_fpath, dest, "spinoff")
+            if "正稿" in fname:
+                dest = os.path.join(CONTENT_DIR, "canon", fname)
+                process_file(fpath, dest, "canon")
+                published_count += 1
+            else:
+                # Non-finalized or internal notes remain draft
+                print(f"  [Skip Draft/Internal] {fname}")
 
-    # 2. Tasks / Forensics
-    if os.path.exists(TASKS_DIR):
-        for fname in sorted(os.listdir(TASKS_DIR)):
-            fpath = os.path.join(TASKS_DIR, fname)
-            if os.path.isfile(fpath) and fname.endswith(".md"):
-                dest = os.path.join(CONTENT_DIR, "tasks", fname)
-                process_file(fpath, dest, "tasks")
-
-    print("✔ Hugo content prepared successfully.")
+    print(f"✔ Hugo content prepared: {published_count} official canon manuscripts published.")
 
 if __name__ == "__main__":
     main()

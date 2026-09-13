@@ -17,32 +17,41 @@
         <div class="brand-sub">KUNPENGZHI PODCAST · IDP</div>
       </div>
       <nav class="nav-tree">
+        {{ $canon := where .Site.RegularPages "Section" "canon" }}
+        {{ if gt (len $canon) 0 }}
         <details open class="nav-group">
-          <summary>📜 主线正典（三更道场）</summary>
+          <summary>📜 主线正典（三更道场 · 正稿）</summary>
           <ul>
-            {{ range (where .Site.RegularPages "Section" "canon") }}
+            {{ range $canon }}
             <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
             {{ end }}
           </ul>
         </details>
+        {{ end }}
 
+        {{ $spinoff := where .Site.RegularPages "Section" "spinoff" }}
+        {{ if gt (len $spinoff) 0 }}
         <details open class="nav-group">
           <summary>🌌 18 智者专栏 (Spinoff)</summary>
           <ul>
-            {{ range (where .Site.RegularPages "Section" "spinoff") }}
+            {{ range $spinoff }}
             <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
             {{ end }}
           </ul>
         </details>
+        {{ end }}
 
+        {{ $tasks := where .Site.RegularPages "Section" "tasks" }}
+        {{ if gt (len $tasks) 0 }}
         <details class="nav-group">
           <summary>⚖️ 第二季工单 · 法医审计底册</summary>
           <ul>
-            {{ range (where .Site.RegularPages "Section" "tasks") }}
+            {{ range $tasks }}
             <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
             {{ end }}
           </ul>
         </details>
+        {{ end }}
       </nav>
     </aside>
 
