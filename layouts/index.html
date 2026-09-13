@@ -27,7 +27,11 @@
 {{ $canon := (where .Site.RegularPages "Section" "canon").ByWeight }}
 {{ if gt (len $canon) 0 }}
 <section class="grid-section">
-  <h2 class="grid-title">📜 主线录播正典文字稿（全十五期）</h2>
+  <div class="season-meta">
+    <span class="season-badge">SEASON 01 · 纲</span>
+    <h2 class="grid-title">📜 第一季 · 打舵（五卷正典 · 录播文字稿）</h2>
+    <p class="season-desc">「左满舵、右满舵 —— 彻底改变探寻方向，颠覆伪史假账，重构物理时钟与文明法统。」</p>
+  </div>
   <div class="card-grid">
     {{ range $canon }}
     <a href="{{ .RelPermalink }}" class="card">
@@ -39,33 +43,26 @@
 </section>
 {{ end }}
 
-{{ $spinoff := where .Site.RegularPages "Section" "spinoff" }}
-{{ if gt (len $spinoff) 0 }}
 <section class="grid-section">
-  <h2 class="grid-title">🌌 18 智者专栏与演进档案 (Spinoff)</h2>
+  <div class="season-meta">
+    <span class="season-badge season-badge-s2">SEASON 02 · 纲</span>
+    <h2 class="grid-title">⚓ 第二季 · 寻锚（工单池 · 智者专栏与演进底册）</h2>
+    <p class="season-desc">「寻锚定心 —— 在全球地缘重塑、深空深海物理底册与自主认知协议（ASN）中，锁定文明定盘之锚。」</p>
+  </div>
   <div class="card-grid">
-    {{ range $spinoff }}
+    {{ $spinoff := where .Site.RegularPages "Section" "spinoff" }}
+    {{ $tasks := where .Site.RegularPages "Section" "tasks" }}
+    {{ range (union $spinoff $tasks) }}
     <a href="{{ .RelPermalink }}" class="card">
       <div class="card-title">{{ .Title }}</div>
       <div class="card-snippet">{{ .Summary | truncate 80 }}</div>
     </a>
+    {{ else }}
+    <div class="card card-placeholder">
+      <div class="card-title">⚓ 第二季工单池 · 演进中</div>
+      <div class="card-snippet">十八智者分舵专栏（鱼尾狮吼、踹忑一角、桃源格竹等）与法医审计工单持续调度中……</div>
+    </div>
     {{ end }}
   </div>
 </section>
-{{ end }}
-
-{{ $tasks := where .Site.RegularPages "Section" "tasks" }}
-{{ if gt (len $tasks) 0 }}
-<section class="grid-section">
-  <h2 class="grid-title">⚖️ 第二季工单池 · 法医审计底册 (Tasks & Forensics)</h2>
-  <div class="card-grid">
-    {{ range $tasks }}
-    <a href="{{ .RelPermalink }}" class="card">
-      <div class="card-title">{{ .Title }}</div>
-      <div class="card-snippet">{{ .Summary | truncate 80 }}</div>
-    </a>
-    {{ end }}
-  </div>
-</section>
-{{ end }}
 {{ end }}

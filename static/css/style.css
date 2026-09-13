@@ -244,9 +244,33 @@ main.main-viewport {
   background: rgba(78, 201, 176, 0.15) !important;
 }
 
-/* Cards Grid */
+/* Cards Grid & Season Sections */
 .grid-section {
   margin-top: 36px;
+}
+
+.season-meta {
+  margin-bottom: 20px;
+}
+
+.season-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--gold);
+  background: rgba(232, 196, 106, 0.12);
+  border: 1px solid rgba(232, 196, 106, 0.35);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-family: 'Cinzel', monospace;
+}
+
+.season-badge-s2 {
+  color: var(--cyan);
+  background: rgba(78, 201, 176, 0.12);
+  border-color: rgba(78, 201, 176, 0.35);
 }
 
 .grid-title {
@@ -254,7 +278,19 @@ main.main-viewport {
   color: var(--gold);
   border-bottom: 1px solid var(--border-gold);
   padding-bottom: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 8px;
+}
+
+.season-desc {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.card-placeholder {
+  border-style: dashed;
+  opacity: 0.75;
 }
 
 .card-grid {

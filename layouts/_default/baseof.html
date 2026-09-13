@@ -32,7 +32,7 @@
         {{ $canon := (where .Site.RegularPages "Section" "canon").ByWeight }}
         {{ if gt (len $canon) 0 }}
         <details open class="nav-group">
-          <summary>📜 正典录播文字稿</summary>
+          <summary>📜 第一季 · 打舵（五卷正典）</summary>
           <ul>
             {{ range $canon }}
             <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
@@ -41,29 +41,18 @@
         </details>
         {{ end }}
 
-        {{ $spinoff := where .Site.RegularPages "Section" "spinoff" }}
-        {{ if gt (len $spinoff) 0 }}
-        <details open class="nav-group">
-          <summary>🌌 18 智者专栏 (Spinoff)</summary>
-          <ul>
-            {{ range $spinoff }}
-            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-            {{ end }}
-          </ul>
-        </details>
-        {{ end }}
-
-        {{ $tasks := where .Site.RegularPages "Section" "tasks" }}
-        {{ if gt (len $tasks) 0 }}
         <details class="nav-group">
-          <summary>⚖️ 第二季工单 · 法医审计底册</summary>
+          <summary>⚓ 第二季 · 寻锚（工单演进）</summary>
           <ul>
-            {{ range $tasks }}
+            {{ $spinoff := where .Site.RegularPages "Section" "spinoff" }}
+            {{ $tasks := where .Site.RegularPages "Section" "tasks" }}
+            {{ range (union $spinoff $tasks) }}
             <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+            {{ else }}
+            <li style="color: var(--text-dim); font-size: 0.8rem; padding: 4px 6px;">十八智者分舵工单调度中…</li>
             {{ end }}
           </ul>
         </details>
-        {{ end }}
       </nav>
     </aside>
 
