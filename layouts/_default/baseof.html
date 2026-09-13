@@ -13,14 +13,14 @@
   <div class="app-layout">
     <aside class="sidebar">
       <div class="brand">
-        <a href="{{ .Site.BaseURL }}" class="brand-title">鲲鹏志 · 播客</a>
-        <div class="brand-sub">KUNPENGZHI PODCAST · IDP</div>
+        <a href="{{ .Site.BaseURL }}" class="brand-title">鲲鹏志 · 三更道场</a>
+        <div class="brand-sub">播客文字稿 · KUNPENGZHI PODCAST</div>
       </div>
       <nav class="nav-tree">
         {{ $canon := (where .Site.RegularPages "Section" "canon").ByWeight }}
         {{ if gt (len $canon) 0 }}
         <details open class="nav-group">
-          <summary>📜 主线正典（三更道场 · 正稿）</summary>
+          <summary>📜 正典录播文字稿</summary>
           <ul>
             {{ range $canon }}
             <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>

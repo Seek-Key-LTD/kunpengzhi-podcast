@@ -1,8 +1,8 @@
 baseURL = "https://podcast.git4ta.fun/"
-title = "鲲鹏志 · 播客正典与因陀罗网络法医账本"
+title = "鲲鹏志 · 三更道场 · 播客文字稿"
 
 [params]
-  description = "内容驱动 AI 辩论系统 · 五卷人物正典 · 18 智者专栏 · 历史法医会计审计"
+  description = "内容驱动 AI 辩论系统 · 鲲鹏志三更道场播客文字稿 · 历史法医会计审计"
 
 [markup]
   [markup.goldmark]

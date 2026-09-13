@@ -1,17 +1,17 @@
 {{ define "main" }}
 <div class="hero">
-  <div class="hero-tag">AUTONOMOUS COGNITIVE FEDERATION · ASN</div>
-  <h1 class="hero-title">鲲鹏志 · 播客正典与法医底册</h1>
+  <div class="hero-tag">AUTONOMOUS COGNITIVE FEDERATION · KUNPENGZHI PODCAST</div>
+  <h1 class="hero-title">鲲鹏志 · 三更道场 · 播客文字稿</h1>
   <p class="hero-desc">
     「出门在外，身份是自己给的 —— 光驳论不立论，飞轮转不起来。」<br>
-    收录《三更道场》十五期主线全稿正典与法医级历史账本。
+    收录主线录播正典文字全稿与法医级历史账本。
   </p>
 </div>
 
 {{ $canon := (where .Site.RegularPages "Section" "canon").ByWeight }}
 {{ if gt (len $canon) 0 }}
 <section class="grid-section">
-  <h2 class="grid-title">📜 主线正典（三更道场 · 15期完整录播正稿）</h2>
+  <h2 class="grid-title">📜 主线录播正典文字稿（全十五期）</h2>
   <div class="card-grid">
     {{ range $canon }}
     <a href="{{ .RelPermalink }}" class="card">
