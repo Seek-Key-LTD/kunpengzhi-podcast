@@ -17,6 +17,18 @@
         <div class="brand-sub">播客文字稿 · KUNPENGZHI PODCAST</div>
       </div>
       <nav class="nav-tree">
+        {{ $special := (where .Site.RegularPages "Section" "special").ByWeight }}
+        {{ if gt (len $special) 0 }}
+        <details open class="nav-group nav-group-special">
+          <summary>🌟 核心特别篇卷 · 正典资产</summary>
+          <ul>
+            {{ range $special }}
+            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+            {{ end }}
+          </ul>
+        </details>
+        {{ end }}
+
         {{ $canon := (where .Site.RegularPages "Section" "canon").ByWeight }}
         {{ if gt (len $canon) 0 }}
         <details open class="nav-group">

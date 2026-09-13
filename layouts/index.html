@@ -8,6 +8,22 @@
   </p>
 </div>
 
+{{ $special := (where .Site.RegularPages "Section" "special").ByWeight }}
+{{ if gt (len $special) 0 }}
+<section class="popout-section">
+  <div class="popout-grid">
+    {{ range $special }}
+    <a href="{{ .RelPermalink }}" class="popout-card">
+      <div class="popout-badge">🌟 核心特别篇卷 · 正典资产</div>
+      <div class="popout-title">{{ .Title }}</div>
+      <div class="popout-desc">{{ .Summary | truncate 120 }}</div>
+      <div class="popout-action">立即查阅全文 ➔</div>
+    </a>
+    {{ end }}
+  </div>
+</section>
+{{ end }}
+
 {{ $canon := (where .Site.RegularPages "Section" "canon").ByWeight }}
 {{ if gt (len $canon) 0 }}
 <section class="grid-section">

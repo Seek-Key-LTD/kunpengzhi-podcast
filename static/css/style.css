@@ -125,7 +125,7 @@ main.main-viewport {
   background: radial-gradient(circle at top right, rgba(232, 196, 106, 0.08) 0%, transparent 70%), var(--bg-card);
   padding: 36px;
   border-radius: 12px;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
 .hero-tag {
@@ -149,6 +149,99 @@ main.main-viewport {
   color: var(--text-dim);
   font-size: 1.05rem;
   line-height: 1.8;
+}
+
+/* Popout Special Assets Banner */
+.popout-section {
+  margin-bottom: 36px;
+}
+
+.popout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.popout-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(232, 196, 106, 0.07) 0%, rgba(78, 201, 176, 0.05) 100%), var(--bg-sidebar);
+  border: 1.5px solid var(--border-gold-bright);
+  border-radius: 12px;
+  padding: 24px 22px;
+  text-decoration: none;
+  color: var(--text-main);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(232, 196, 106, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.popout-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: var(--gold-light);
+  box-shadow: 0 14px 32px rgba(232, 196, 106, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, rgba(232, 196, 106, 0.12) 0%, rgba(78, 201, 176, 0.09) 100%), var(--bg-sidebar);
+}
+
+.popout-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--gold);
+  background: rgba(232, 196, 106, 0.12);
+  border: 1px solid rgba(232, 196, 106, 0.35);
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+
+.popout-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.popout-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.popout-action {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.popout-card:hover .popout-action {
+  color: var(--gold-light);
+}
+
+.nav-group-special summary {
+  color: #4ec9b0 !important;
+  background: rgba(78, 201, 176, 0.08);
+  border: 1px solid rgba(78, 201, 176, 0.2);
+}
+
+.nav-group-special li a {
+  color: #c5efe7 !important;
+  font-weight: 600;
+}
+
+.nav-group-special li a:hover {
+  color: #fff !important;
+  background: rgba(78, 201, 176, 0.15) !important;
 }
 
 /* Cards Grid */
