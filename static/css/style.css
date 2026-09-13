@@ -273,6 +273,12 @@ main.main-viewport {
   border-color: rgba(78, 201, 176, 0.35);
 }
 
+.season-badge-s3 {
+  color: #9d8cd7;
+  background: rgba(157, 140, 215, 0.12);
+  border-color: rgba(157, 140, 215, 0.35);
+}
+
 .grid-title {
   font-size: 1.3rem;
   color: var(--gold);

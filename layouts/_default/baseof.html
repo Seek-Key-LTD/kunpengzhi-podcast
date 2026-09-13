@@ -42,15 +42,22 @@
         {{ end }}
 
         <details class="nav-group">
-          <summary>⚓ 第二季 · 寻锚（工单演进）</summary>
+          <summary>⚓ 第二季 · 寻锚（立冬发布）</summary>
           <ul>
             {{ $spinoff := where .Site.RegularPages "Section" "spinoff" }}
             {{ $tasks := where .Site.RegularPages "Section" "tasks" }}
             {{ range (union $spinoff $tasks) }}
             <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
             {{ else }}
-            <li style="color: var(--text-dim); font-size: 0.8rem; padding: 4px 6px;">十八智者分舵工单调度中…</li>
+            <li style="color: var(--text-dim); font-size: 0.8rem; padding: 4px 6px;">十八智者分舵工单调度中（立冬正式呈现）…</li>
             {{ end }}
+          </ul>
+        </details>
+
+        <details class="nav-group">
+          <summary>⛵ 第三季 · 扬帆（远景规划）</summary>
+          <ul>
+            <li style="color: var(--text-dim); font-size: 0.8rem; padding: 4px 6px;">自主认知协议全球远航…</li>
           </ul>
         </details>
       </nav>
