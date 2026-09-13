@@ -17,7 +17,7 @@
 body {
   background-color: var(--bg-deep);
   color: var(--text-main);
-  font-family: 'Noto Serif SC', 'Songti SC', 'Source Han Serif SC', serif;
+  font-family: 'LXGW WenKai Screen', 'LXGW WenKai', 'Noto Serif SC', 'Songti SC', serif;
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
 }
@@ -47,7 +47,7 @@ aside.sidebar {
 }
 
 .brand-title {
-  font-family: 'Cinzel', 'Noto Serif SC', serif;
+  font-family: 'LXGW WenKai', 'Cinzel', 'Noto Serif SC', serif;
   font-size: 1.35rem;
   font-weight: 700;
   color: var(--gold);
