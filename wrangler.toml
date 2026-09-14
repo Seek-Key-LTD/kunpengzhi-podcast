@@ -1,6 +1,9 @@
 name = "kunpengzhi-podcast"
 compatibility_date = "2026-09-13"
 
+[build]
+command = "bun run build || npm run build"
+
 [assets]
 directory = "./public"
 
