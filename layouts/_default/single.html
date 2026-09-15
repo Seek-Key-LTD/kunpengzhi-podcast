@@ -1,7 +1,16 @@
 {{ define "main" }}
 <article class="article-view">
-  <h1>{{ .Title }}</h1>
-  {{ if .Params.author }}<p style="color: var(--gold); font-size: 0.9em; margin-bottom: 2em;">主理人 / 叙事锚点：{{ .Params.author }}</p>{{ end }}
+  <header class="article-header">
+    <h1>{{ .Title }}</h1>
+    <div class="article-meta-bar">
+      {{ if .Params.author }}<span class="meta-item meta-author">主理人 / 叙事锚点：{{ .Params.author }}</span>{{ end }}
+      <span class="meta-item meta-counter" id="page-counter-badge" title="当前页面累计阅读次数">
+        <span class="counter-icon">👁️</span>
+        <span class="counter-label">阅读</span>
+        <span class="counter-val" id="page-views-count">-</span>
+      </span>
+    </div>
+  </header>
   <div class="article-body">
     {{ .Content }}
   </div>
