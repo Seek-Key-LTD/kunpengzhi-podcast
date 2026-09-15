@@ -4,9 +4,12 @@
   "description": "鲲鹏志 · 播客五卷正典与因陀罗网络法医账本",
   "scripts": {
     "prepare-content": "python3 scripts/prepare_hugo_content.py",
-    "build": "hugo --minify",
-    "hugo": "hugo"
+    "build": "node ./node_modules/hugo-bin/bin/cli.js --minify",
+    "hugo": "node ./node_modules/hugo-bin/bin/cli.js"
   },
+  "trustedDependencies": [
+    "hugo-bin"
+  ],
   "devDependencies": {
     "hugo-bin": "^0.119.0",
     "wrangler": "^4.131.1"

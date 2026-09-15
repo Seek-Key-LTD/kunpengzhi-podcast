@@ -3,14 +3,17 @@ main = "src/index.ts"
 compatibility_date = "2026-09-13"
 
 [build]
-command = "bun run build || npm run build"
+command = "npm run build"
 
 [assets]
 directory = "./public"
 
-[[d1_databases]]
-binding = "DB"
-database_name = "kunpengzhi-counters"
-database_id = "kunpengzhi-counters"
+# To enable Cloudflare D1 counter, create database via:
+# npx wrangler d1 create kunpengzhi-counters
+# and paste the returned database_id UUID below:
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "kunpengzhi-counters"
+# database_id = "<YOUR_D1_DATABASE_UUID>"
 
 
