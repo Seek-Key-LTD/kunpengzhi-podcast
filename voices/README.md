@@ -70,6 +70,8 @@ flowchart TD
 | **12** | `VOICE_12` | [敦煌](./12_敦煌_Dunhuang__VOICE12.md) | **黄拓石** | `12_dunhuang_敦煌.wav` | 120-138Hz | 西北兰州官话底色 / 黄土沉积风沙感 / 托石老队长 | Feishu DSP | **📋 待排期 (Queued)** |
 | **13** | `VOICE_14` | [知春](./13_知春_Zhichun__VOICE14.md) | **丛中笑** | `14_zhichun_知春.wav` | 125-142Hz | 天津卫相声曲艺底色 / 微胖松弛中音 / 拜占庭解构 | Direct Clean | **📋 待排期 (Queued)** |
 | **15** | `VOICE_15` | [酒泉](./15_酒泉_Jiuquan__VOICE15.md) | **唐数敕** | `15_jiuquan_酒泉.wav` | 145-160Hz | 西北极客快速连珠炮 / 算法即国家敕令 | Feishu DSP | **📋 待排期 (Queued)** |
+| **16** | `VOICE_16` | [普陀](./16_普陀_Putuo__VOICE16.md) | **华忠仁** | `None (Mute/Pen)` | 待定 | **无声观察者 (失聪·便签笔谈)** / 打破第四面墙 | Silent Notes | **👁️ 无声观测 (Silent)** |
+| **17** | `VOICE_17` | [岚桥](./17_岚桥_Lanqiao__VOICE17.md) | **尹卞迁** | `17_lanqiao_岚桥.wav` | 135-150Hz | 海派精英金融冷讽普 / 四证大满贯提篮桥预备役 | Feishu DSP | **📋 待排期 (Queued)** |
 
 ---
 
