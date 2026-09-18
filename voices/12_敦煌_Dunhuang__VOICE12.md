@@ -1,3 +1,15 @@
+---
+cast_order: 12
+voice_asset_id: "VOICE_12"
+codename: "敦煌"
+legal_name: "黄拓石"
+status: "blueprint"
+physical_master: "None (Queued)"
+f0_target: "120Hz-138Hz"
+pipeline: "OmniVoice (西北官话)"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 敦煌 (Dunhuang) · 声音资产与生成档案
 
 > **“第四纪的黄土剖面和莫高窟的岩壁，就是一部写在西北大漠里的黄色石头记。你拿着地质锤敲下去，每一层都是地球的指纹。”**  

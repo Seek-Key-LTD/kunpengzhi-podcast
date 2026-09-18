@@ -1,3 +1,15 @@
+---
+cast_order: 11
+voice_asset_id: "VOICE_11"
+codename: "良渚"
+legal_name: "梁随祝"
+status: "blueprint"
+physical_master: "None (Queued)"
+f0_target: "140Hz-155Hz"
+pipeline: "OmniVoice (吴音特征)"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 良渚 (Liangzhu) · 声音资产与生成档案
 
 > **“五千年了，肉身早化为尘土，但这根双螺旋 DNA 里的单倍群突变，却永生不灭地流在我们的血管里。”**  

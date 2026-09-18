@@ -1,3 +1,15 @@
+---
+cast_order: 06
+voice_asset_id: "VOICE_13"
+codename: "珞珈"
+legal_name: "落花生"
+status: "blueprint"
+physical_master: "None (Queued)"
+f0_target: "135Hz-150Hz"
+pipeline: "OmniVoice (楚地官话)"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 珞珈 (Luojia) · 声音资产与生成档案
 
 > **“落花有情，今为花生。当年为了留在东湖边，我放下了北京的所有机会。但这片楚地的泥土，养得活最硬的条约法医。”**  

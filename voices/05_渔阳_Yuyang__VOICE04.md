@@ -1,3 +1,15 @@
+---
+cast_order: 05
+voice_asset_id: "VOICE_04"
+codename: "渔阳"
+legal_name: "于鲜洋"
+status: "locked"
+physical_master: "05_yuyang_渔阳.wav"
+f0_target: "130Hz-150Hz"
+pipeline: "Qwen3-TTS (Dylan 京普混流)"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 渔阳 (Yuyang) · 声音资产与生成档案
 
 > **“您内位甭跟我聊虚头巴脑的宏大叙事，把资产负债表一翻，谁在裸泳一目了然。”**  

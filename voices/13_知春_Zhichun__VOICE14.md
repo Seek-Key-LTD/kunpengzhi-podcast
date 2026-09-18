@@ -1,3 +1,15 @@
+---
+cast_order: 13
+voice_asset_id: "VOICE_14"
+codename: "知春"
+legal_name: "丛中笑"
+status: "blueprint"
+physical_master: "None (Queued)"
+f0_target: "125Hz-142Hz"
+pipeline: "OmniVoice (天津曲艺腔)"
+transmission_channel: "Direct Clean"
+---
+
 # 知春 (Zhichun) · 声音资产与生成档案
 
 > **“俏也不争春，只把春来报。待到山花烂漫时，她在丛中笑。”**  

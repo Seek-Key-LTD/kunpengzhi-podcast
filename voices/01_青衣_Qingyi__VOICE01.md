@@ -1,3 +1,15 @@
+---
+cast_order: 01
+voice_asset_id: "VOICE_01"
+codename: "青衣"
+legal_name: "秦雍琼"
+status: "locked"
+physical_master: "01_qingyi_青衣.wav"
+f0_target: "210Hz-235Hz"
+pipeline: "OmniVoice Seed + Qwen3-TTS (Vivian)"
+transmission_channel: "Direct Clean"
+---
+
 # 青衣 (Qingyi) · 声音资产与生成档案
 
 > **“莫言天地无青史，三更开卷审列国。”**  

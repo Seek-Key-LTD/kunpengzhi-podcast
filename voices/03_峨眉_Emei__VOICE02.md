@@ -1,3 +1,15 @@
+---
+cast_order: 03
+voice_asset_id: "VOICE_02"
+codename: "峨眉"
+legal_name: "梅心易"
+status: "locked"
+physical_master: "02_emei_峨眉.wav"
+f0_target: "135Hz-155Hz"
+pipeline: "CosyVoice2 (川普0.75档)"
+transmission_channel: "Direct Clean"
+---
+
 # 峨眉 (Emei) · 声音资产与生成档案
 
 > **“天地本无假账，都是后人涂抹。今晚咱们梅尤组合，把这笔账给你连底翻开！”**  

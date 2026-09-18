@@ -1,3 +1,15 @@
+---
+cast_order: 15
+voice_asset_id: "VOICE_15"
+codename: "酒泉"
+legal_name: "唐数敕"
+status: "blueprint"
+physical_master: "None (Queued)"
+f0_target: "145Hz-160Hz"
+pipeline: "OmniVoice (青年极客连珠炮)"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 酒泉 (Jiuquan) · 声音资产与生成档案 (第二季登场)
 
 > **“你们算历史账，我在西工大算弹道与多维流形。算法就是国家敕令，方程一旦收敛，天上人间没有打不中的靶心。”**  

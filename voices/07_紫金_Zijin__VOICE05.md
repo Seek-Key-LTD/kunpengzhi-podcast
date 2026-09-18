@@ -1,3 +1,15 @@
+---
+cast_order: 07
+voice_asset_id: "VOICE_05"
+codename: "紫金"
+legal_name: "王佑德"
+status: "locked"
+physical_master: "04_zijin_紫金.wav"
+f0_target: "130Hz-145Hz"
+pipeline: "OmniVoice + 慢速推导"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 紫金 (Zijin) · 声音资产与生成档案
 
 > **“我们来看黑板上的这个方程。宇宙学不是诗意遐想，它是一套严丝合缝的复式记账。”**  

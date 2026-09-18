@@ -1,3 +1,15 @@
+---
+cast_order: 09
+voice_asset_id: "VOICE_09"
+codename: "云中"
+legal_name: "云久元"
+status: "blueprint"
+physical_master: "None (Queued)"
+f0_target: "125Hz-145Hz"
+pipeline: "OmniVoice (晋北官话)"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 云中 (Yunzhong) · 声音资产与生成档案
 
 > **“五百四十年前，达延汗重整蒙古六万户的时候，土默特万户的战旗就在大同城外。这阴山脚下的九运大账，咱们今晚当着天下人拆开算。”**  

@@ -1,3 +1,15 @@
+---
+cast_order: 02
+voice_asset_id: "VOICE_08"
+codename: "盛乐"
+legal_name: "孛儿只斤·敖日其楞"
+status: "blueprint"
+physical_master: "None (Queued)"
+f0_target: "115Hz-135Hz"
+pipeline: "OmniVoice (蒙普特征) + CosyVoice2"
+transmission_channel: "Direct Clean"
+---
+
 # 盛乐 (Shengle) · 声音资产与生成档案
 
 > **“老子在大召寺旁喝焖倒驴的时候，你们还在分不清契丹大字和小字。游牧不是野蛮，游牧是欧亚大陆最古老的物理大账房！”**  

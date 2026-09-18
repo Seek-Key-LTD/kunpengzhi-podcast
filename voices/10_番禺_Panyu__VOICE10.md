@@ -1,3 +1,15 @@
+---
+cast_order: 10
+voice_asset_id: "VOICE_10"
+codename: "番禺"
+legal_name: "潘谦钺"
+status: "blueprint"
+physical_master: "None (Queued)"
+f0_target: "135Hz-150Hz"
+pipeline: "OmniVoice (广普特征)"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 番禺 (Panyu) · 声音资产与生成档案
 
 > **“大家都系讲道理嘅嘛。你先饮杯单丛茶，听我慢慢同你计这笔台风角动量大账。”**  

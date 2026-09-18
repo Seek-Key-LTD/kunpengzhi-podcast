@@ -1,3 +1,15 @@
+---
+cast_order: 14
+voice_asset_id: "VOICE_07"
+codename: "竹湖"
+legal_name: "江映帆"
+status: "experimenting"
+physical_master: "zhuhu_designed_taiwan_male_58yo.wav (Candidate)"
+f0_target: "155Hz-168Hz"
+pipeline: "Voice Design ➔ BreezyVoice (G2PW)"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 竹湖先生 (Professor Zhuhu) · 声音资产与生成档案
 
 > **“峨眉兄提這部電影，我們台灣這一代老影迷心裡是有迴響的。張麻子進城，鵝城上下問縣太爺長什麼樣，可從頭到尾沒人說得清。符號底下壓著的，是民國真正的病。”**  

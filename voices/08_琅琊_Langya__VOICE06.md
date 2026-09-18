@@ -1,3 +1,15 @@
+---
+cast_order: 08
+voice_asset_id: "VOICE_06"
+codename: "琅琊"
+legal_name: "迟阆钟"
+status: "experimenting"
+physical_master: "langya_qingdao_optA_mid.wav (Candidate)"
+f0_target: "120Hz-140Hz"
+pipeline: "OmniVoice (青岛话设计)"
+transmission_channel: "Feishu DSP (MCU)"
+---
+
 # 琅琊 (Langya) · 声音资产与生成档案
 
 > **“在七级大风的黄海大风浪区，你靠喊是没用的，你得让你的声音压在海浪的频率底下！”**  

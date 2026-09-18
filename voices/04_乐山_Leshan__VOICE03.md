@@ -1,3 +1,15 @@
+---
+cast_order: 04
+voice_asset_id: "VOICE_03"
+codename: "乐山"
+legal_name: "游牧仁"
+status: "locked"
+physical_master: "03_leshan_乐山.wav"
+f0_target: "125Hz-145Hz"
+pipeline: "MiMo-TTS (川话1.0档➔降档)"
+transmission_channel: "Direct Clean"
+---
+
 # 乐山 (Leshan) · 声音资产与生成档案
 
 > **“你莫跟我扯那些书房里的玄龙门阵，老子在广汉鸭子河里刨出来的青铜器，它自己会说话！”**  
