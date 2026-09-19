@@ -1,0 +1,37 @@
+name: Publish Spinoffs to Drupal
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/spinoff_*/**.md'
+      - 'scripts/publish_drupal.py'
+  workflow_dispatch:
+
+jobs:
+  publish-to-drupal:
+    name: Auto Dispatch Spinoffs to Drupal Columnists
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          pip install requests urllib3
+
+      - name: Run Wildcard Spinoff Publisher
+        env:
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR || 'https://vault.capitaltrain.cn' }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+          DRUPAL_BASE_URL: 'https://drupal.seekkey.eu.org'
+        run: |
+          python3 scripts/publish_drupal.py --git-diff
