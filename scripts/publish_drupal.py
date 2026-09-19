@@ -10,6 +10,10 @@ import json
 import re
 import argparse
 import subprocess
+from pathlib import PurePosixPath
+from urllib.parse import quote, unquote, urlsplit
+
+import markdown
 import requests
 import urllib3
 
@@ -105,23 +109,69 @@ def get_drupal_oauth_token(client_id, client_secret):
     return access_token
 
 
+PUBLIC_DOCS_BASE = (
+    "https://gitea.capitaltrain.cn/seekkey/kunpengzhi-podcast/raw/branch/main/docs"
+)
+
+
+def _public_url_for_file_uri(value):
+    """将仓库 Markdown 中的本机 file:// 链接转换为公开 raw 链接。"""
+    parsed = urlsplit(value)
+    if parsed.scheme != "file":
+        return value
+
+    path = unquote(parsed.path)
+    marker = "/docs/"
+    if marker not in path:
+        return value
+
+    relative_path = path.split(marker, 1)[1]
+    encoded_path = quote(PurePosixPath(relative_path).as_posix(), safe="/")
+    suffix = f"?{parsed.query}" if parsed.query else ""
+    fragment = f"#{parsed.fragment}" if parsed.fragment else ""
+    return f"{PUBLIC_DOCS_BASE}/{encoded_path}{suffix}{fragment}"
+
+
+def normalize_markdown_links(content):
+    """清理 Markdown 中会在网站上失效或泄露本机路径的链接。"""
+    return re.sub(
+        r"file://[^\s)<>]+",
+        lambda match: _public_url_for_file_uri(match.group(0)),
+        content,
+    )
+
+
+def render_markdown(content):
+    """把 Markdown 转成 Drupal basic_html 可接收的 HTML。"""
+    normalized = normalize_markdown_links(content)
+    return markdown.markdown(
+        normalized,
+        extensions=["fenced_code", "tables", "sane_lists"],
+        output_format="html5",
+    )
+
+
 def parse_markdown_file(file_path):
-    """解析 Markdown 文件，提取首行一级标题与正文"""
+    """解析 Markdown 文件，提取标题并返回已渲染的 HTML 正文。"""
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
     lines = content.splitlines()
     title = os.path.basename(file_path).replace(".md", "")
-    body = content
+    body_lines = lines
 
     # 寻找首个一级标题
     for idx, line in enumerate(lines):
         stripped = line.strip()
         if stripped.startswith("# "):
             title = stripped[2:].strip()
-            # 可以选择保留全部正文，也可以把首行剔除
+            # 标题由 Drupal/前端单独渲染，正文去掉首个一级标题，避免重复。
+            body_lines = lines[:idx] + lines[idx + 1 :]
             break
 
+    body = render_markdown("\n".join(body_lines).strip())
+    if not body:
+        raise ValueError(f"Markdown file has no renderable body: {file_path}")
     return title, body
 
 
@@ -134,7 +184,7 @@ def publish_article_to_drupal(access_token, title, body_content):
         "Accept": "application/vnd.api+json"
     }
 
-    # Drupal 文章发布 payload (采用 basic_html 或 full_html 格式，直接支持 Markdown 渲染)
+    # body.value 必须是 HTML；Drupal 的 basic_html 不会解析 Markdown。
     payload = {
         "data": {
             "type": "node--article",

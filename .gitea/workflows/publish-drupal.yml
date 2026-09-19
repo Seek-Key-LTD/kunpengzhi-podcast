@@ -26,7 +26,11 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install requests urllib3
+          pip install requests urllib3 Markdown==3.7
+
+      - name: Validate Markdown rendering
+        run: |
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Run Wildcard Spinoff Publisher
         env:
