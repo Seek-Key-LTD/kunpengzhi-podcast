@@ -70,3 +70,25 @@ transmission_channel: "Feishu DSP (MCU)"
 2. **`instruct` 不改变输出时长**，只有 `speed` 改变，且**亚线性**（实测 speed 1.06→1.10 得 5.72s→5.52s）。拿时长当 A/B 判据 = 无效测试。
 3. **Design ➔ Clone 的必然性**：紫金要六格分装，纯 Design 每次抽风不同，不可复用 —— **必须**先用定版母带抽 `zijin_seed.pt`，再以 clone 锁声底、用 speed 与文案做情绪分档。clone 若失真，回退 Design 重选声底，不在 seed 上打补丁。
 4. `04_zijin_紫金.wav` 只有 10.36s，作 clone 参考音偏短，重抽 seed 时建议改用 `zijin_wang_yongle_ryan.wav`（23.36s）或补产 10–15s 干净段。
+
+### ⚠ 2026-09-21 六合首产事故（本档案当场纠正）
+
+用 `男，中年，极低音调` 连续做 **6 次 Voice Design** 出六格，主理人听感裁定：**只有 `base` 是人，其余五格是另外五个人**（`attack` 尤甚，“网剧腔”完全失败）。
+
+**根因不是提示词，是引擎没有种子入口**：`OmniVoiceGenerationConfig` 只有 `num_step / guidance_scale / t_shift / position_temperature / class_temperature`，**无 seed**。Voice Design 每调必重抽声纹，同 `instruct` 也只保证“像一类人”，不保证“同一个人”。
+
+已处置：五格挪 `~/Music/voice_assets/zijin/不合格隔离/`（未 `rm`），`base.wav`（9.80s · F0 中位 130.4Hz · 目标带 130–145Hz）留仓候审为**声底父母**。
+
+**合法重产路径（本角色唯一）**：
+
+```text
+① base.wav 当 ref_audio（登记 SHA-256）
+      ↓  在 kunpengzhi-audio-engine 侧抽种子
+② zijin_seed.pt + zijin_ref.wav ＋ manifest.json 登记 instruct/ref_text
+      ↓  Voice Clone，speaker = 紫金
+③ 六格全部由同一 seed 出，情绪差只由 speed 与文案承担
+      ↓  若 clone 失真
+④ 回退 ①：改 instruct 重发 Design 候选、重选声底父母，禁止在 seed 上打补丁
+```
+
+驱动器 `scripts/audition.py` 已加拦截：**角色卡 `mode` 仍写 Voice Design 时拒绝出六合**。

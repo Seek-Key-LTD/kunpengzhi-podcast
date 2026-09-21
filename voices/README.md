@@ -24,6 +24,9 @@ flowchart TD
 ```
 
 ### 核心约束守则：
+
+> ⚠ **上图是“能力宣称矩阵”，与本机实不符**（MiMo-TTS 本机不存在、CosyVoice 仅源码、Qwen3-TTS 与 BreezyVoice 非常驻）。
+> **实产一律以 §一·B 引擎矩阵为准**；两处冲突时以 §一·B 与角色卡第 9 层为准。
 1. **情绪状态机克制**：当前神经网络声学模型（如 CosyVoice2）适宜表现**室内知识分子克制交锋**（压低、骤降、冷峻、反讽）；严禁设计超出模型声码器能力的舞台剧式嚎啕大哭或尖叫，避免引入机械塑料杂音。
 2. **在场 vs 远程物理分层**：
    - **近场电容麦（Direct Clean）**：青衣、峨眉、乐山、知春（肉身在场，干净无损通道）；
@@ -40,6 +43,28 @@ flowchart TD
 
 ---
 
+## 一·B、 本机引擎矩阵 (Engine Matrix · 2026-09-21 实地核查)
+
+> **档案缺陷记录**：本档案此前只写“pipeline: OmniVoice / CosyVoice2 / MiMo-TTS / Qwen3-TTS”这种**形容词式一句带过**，
+> 从未说明这台机器上到底有几个模型、哪个在跑、哪个已经跑不起来。以下矩阵为**实地 `systemctl` / 端口 / 权重目录核查**结果，
+> 今后每个角色的第 9 层「生成谱系」**必须**从中指名唯一一个引擎。
+
+| # | 引擎 | 物理位置 | 运行形态 | 能力 | 硬限制（实测） | 本库已冻结母带的实际出处 |
+|:--:| :--- | :--- | :--- | :--- | :--- | :--- |
+| **E1** | **OmniVoice** | `~/Apps/kunpengzhi-audio-engine/app.py`<br>权重 `~/Projects/rescue/models/omnivoice_model`（k2-fsa/OmniVoice，base `Qwen/Qwen3-0.6B`，28 层，apache-2.0） | ✅ **常驻**：systemd `kunpengzhi-audio-engine.service` → **:9098** | 双模：**Voice Design**（`instruct` 文本捏人）／**Voice Clone**（`*_seed.pt`） | ① `instruct` 是**闭词表**（`男/女`＋年龄段＋五档音调＋耳语＋方言名），写“温和／沙哑”直接 500。<br>② **接口无 seed 入口**：`OmniVoiceGenerationConfig` 只有 `num_step=32 / guidance_scale=2.0 / t_shift=0.1 / position_temperature=5.0 …`，**没有随机种子参数**。<br>③ 推论：**同一条 instruct，两次调用＝两个不同的人**。Design 模式天生不可复用。<br>④ `instruct` 不改变输出时长，只有 `speed` 改，且亚线性。<br>⑤ 当前 `/speakers` 仅有 青衣／峨眉／乐山 三个种子，且其中两个父母不明。 | 乐山 4 条、紫金 3 条（`04_zijin_紫金` / `ryan` / `aiden`） |
+| **E2** | **Qwen3-TTS** | `~/Apps/Qwen3-TTS`（`qwen_tts` 包 + `model_local_full/`，权重齐） | ❌ **非常驻**：无 systemd、无固定端口；只在需要时经 `~/.hermes/plugins/qwen3tts-server/`（`server.py`、`swap-to-tts.sh` 与 vllm **抢卡换起**）临时拉起 | 预置播音音色（`Vivian`／`Serena`）、京腔中英混流（`Dylan`） | **不可原样重跑**：服务随时被换下，且预置音色不经我方 seed，换版即换人。 | 青衣 `qingyi_vivian_v2_cultural_anchor.wav`、渔阳 `yuyang_qwen3_dylan.wav` + `yuyang_mixed_01..03` |
+| **E3** | **BreezyVoice** | `~/Apps/BreezyVoice`（内嵌 `cosyvoice` 子包） | ❌ 无常驻服务，`.venv` 手动拉起 | 联发科台湾繁中 G2PW，中／英／日／韩 Code-Switch | 只在实验场产出，**零冻结母带** | —（竹湖候选全在 `character_samples/`） |
+| **E4** | **CosyVoice2** | `~/Projects/github/CosyVoice` | ❌ **仅源码在库，未见权重与服务** | 档案宣称：Zero-Shot 跨情绪克隆、川普 0.75 档 | **本机上从未证实可用**；峨眉档案 `pipeline` 写它，但 `02_emei_峨眉.wav` 的真实出处**不可考** | 存疑，待主理人裁定 |
+| **E5** | **MiMo-TTS** | **本机未找到** | ❌ 不存在 | 档案宣称：四川方言 1.0 档 | **纯属档案虚记**：乐山冻结件实测出自 E1 OmniVoice（`leshan_ref.wav` 与 `leshan_chuanpu_03_共祖.wav` 字节相同） | 无 |
+
+### 由矩阵导出的三条铁律
+
+1. **一人一引擎一格**：第 9 层「生成谱系」的 `engine` 字段只能填 **E1–E5 编号**，并写明该引擎当下的运行形态；填“OmniVoice 系”这种模糊话视为空项。
+2. **不可重跑的资产必须挂牌**：凡出自 **E2/E3/E4**（无常驻服务）的冻结母带，档案与 `locked/README.md` 必须标 **⚠ 不可原样重跑**，并优先安排“转 E1 Clone”补验（例：用 `qingyi_vivian_v2` 抽 `qingyi_seed.pt`）。
+3. **Design 只准用于选型，不准用于生产**：因 **E1 无 seed**，Voice Design 的输出天生一次一换；任何“六格基线”若由连续 6 次 Design 拼成，**必然不是同一个人**（2026-09-21 紫金首产即犯此错：base 合格、其余 5 格被判成另外五个人）。生产唯一合法路径是：**Design 选出声底父母 → 抽 seed → Clone 出六格**。
+
+---
+
 ## 二、 角色声音资产全息总表 (严格反映当前实际 Constraint)
 
 ### 🟢 梯队一：定板已锁定资产 (Phase 1 · 核心首发 5 人组)
@@ -53,6 +78,16 @@ flowchart TD
 | **04** | `VOICE_03` | [乐山](./04_乐山_Leshan__VOICE03.md) | **游牧仁** | `03_leshan_乐山.wav` | 125-145Hz | 地道四川话 (1.0 档 ➔ 讲课降档) | Direct Clean | **🔒 已锁死 (Locked)** |
 | **05** | `VOICE_04` | [渔阳](./05_渔阳_Yuyang__VOICE04.md) | **于鲜洋** | `05_yuyang_渔阳.wav` | 130-150Hz | 老北京京片子儿化音 / 华尔街中英混流 | Feishu DSP | **🔒 已锁死 (Locked)** |
 | **07** | `VOICE_05` | [紫金](./07_紫金_Zijin__VOICE05.md) | **王佑德** | `04_zijin_紫金.wav` | 130-145Hz | 李永乐式大黑板推导慢语速 / 咬字如切金 | Feishu DSP | **🔒 已锁死 (Locked)** |
+
+**五人定版母带的真实出声引擎（对照 §一·B 矩阵，档案原 `pipeline` 字段有虚记）：**
+
+| 席位 | 档案 `pipeline` 原写 | **实测/可复核的真实出处** | 可重跑性 |
+|:---:| :--- | :--- | :--- |
+| 01 青衣 | OmniVoice Seed + Qwen3-TTS (Vivian) | 冻结件出自 **E2 Qwen3-TTS `Vivian`**；E1 那颗 `qingyi_seed.pt` 父母不明、与定版无关 | ⚠ **不可原样重跑**（E2 非常驻、无我方 seed） |
+| 03 峨眉 | CosyVoice2 (川普0.75档) | **不可考**：E4 本机仅有源码；E1 的 `emei_seed.pt` instruct 与本角色设定两格全违 | ⚠ 出处断线 |
+| 04 乐山 | MiMo-TTS (川话1.0档➔降档) | **E5 本机不存在，纯虚记**；冻结件与 clone 实测全部出自 **E1 OmniVoice** | ✅ 唯一可原样重跑（但声底已判与峨眉撞脸） |
+| 05 渔阳 | Qwen3-TTS (Dylan 京普混流) | 冻结件出自 **E2 Qwen3-TTS**；E1 侧无 `yuyang` 种子 | ⚠ **不可原样重跑** |
+| 07 紫金 | OmniVoice + 慢速推导 | **E1 OmniVoice Voice Design**；无 seed、无 clone | ⚠ 同 instruct 重抽即换人 |
 
 ---
 
