@@ -65,7 +65,7 @@ transmission_channel: "Direct Clean"
 | post_dsp | 无（前两期 Direct Clean；第三期起工地风噪） | ✅ |
 | verdict | 2026-09-18 四选型（`leshan_optA 中年低音`/`optB 中年极低音`/`optC 老年低音`/`optD 老年极低音`）后定 `中年·低音`；`leshan_seed_verify.wav` 为种子自检件 | ✅ |
 
-### ✅ 全库唯一谱系完整的一条
+### ⚠ 谱系闭合 ≠ 声底成立（主理人听感一票否决 2026-09-21）
 
 **`leshan_ref.wav` 与冻结库 `leshan_chuanpu_03_共祖.wav` 字节完全相同**（SHA-256 一致），即 clone 参考音就是档案里那条毕业母带：
 
@@ -73,7 +73,17 @@ transmission_channel: "Direct Clean"
 Voice Design(四选型盲测) ➔ 听定 chuanpu_03_共祖 ➔ 入 locked/ ➔ 抽 leshan_seed.pt ➔ speaker: 乐山
 ```
 
-Design ➔ Clone 血统闭合，**换机可原样重跑**。本角色可作为其余 16 席的谱系模板。
+Design ➔ Clone 血统闭合，**换机可原样重跑** —— 但这只证明“文件没接错”，不证明“人是对的”。
+
+**主理人裁定：`leshan_ref.wav`（即 `leshan_chuanpu_03_共祖.wav`）这条声底听感上就是峨眉，不是乐山。**
+故本条记录降为**程序性合格、实体性作废**：
+
+- `leshan_seed.pt` / `leshan_ref.wav` 谱系可查，但**声底判错，不得作为乐山资产**；
+- 冻结库内 `leshan_chuanpu_01/02/03` 三条同源件**连坐待裁**（01 问好 6.94s、02 白圭 5.37s、03 共祖 12.11s）；
+- `03_leshan_乐山.wav`（8.61s）与之是否同一声底，须耳朵复核后才能定；
+- **回退动作**：按 §README 谱系铁律，回 ① Voice Design 重发乐山候选（闭词表 `男，中年/老年，低音调/极低音调，四川话` 四格已盲测在实验场 `leshan_optA..optD`），听定新声底父母 ➔ 重抽 seed ➔ 旧 seed 连同产出整批进 Trash。
+
+**教训写死**：SHA-256 一致、时长一致、路径可追，全部是**同义反复的自检**，一条也不能替代耳朵。谱系核查只能抓“接错线”，抓不出“长错脸”。
 
 ### 待补
 
