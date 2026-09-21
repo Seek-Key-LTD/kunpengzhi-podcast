@@ -29,17 +29,26 @@ flowchart TD
    - **近场电容麦（Direct Clean）**：青衣、峨眉、乐山、知春（肉身在场，干净无损通道）；
    - **飞书远程连线（MCU DSP）**：渔阳、紫金、琅琊、云中、番禺、良渚、敦煌、竹湖、酒泉（经 DSP 处理：窄带 EQ 截断、低电平底噪、微弱网络码率感）。
 3. **架构解耦铁律**：彻底解耦 `cast_order`（法定席位序号）与 `voice_asset_id`（声学母带编号），严禁混用单一数字。
+4. **一人六合**：每个锁定角色在 `~/Music/voice_assets/<花名>/` 下**必须**有六条基线（`base/probe/attack/defend/break/afterglow`），对应第六层情绪状态机六态。一条声底糊全剧 = 不合格资产。
+5. **四层物理拓扑**（详见 `~/Music/voice_assets/locked/README.md`）：
+   - **法统层**＝本目录 `voices/*.md`（唯一索引，路径全用绝对 `file:///` 引用）；
+   - **冻结母带层**＝`~/Music/voice_assets/locked/`（声底父母 + 已定版母带，随附 `SHA256SUMS.txt`，入库即永不覆盖/改名/删除）；
+   - **六合基线仓**＝`~/Music/voice_assets/<花名>/`（六格分装，一格一锁）；
+   - **毕业成品层**＝`~/Music/san_geng_dao_chang/sXX/`（已播出的整段音频）；
+   - **试音室**＝`~/Music/san_geng_dao_chang_audition/<花名>/*_segments/`、**实验场**＝`~/Music/character_samples/`：两者**皆非资产**，只有听定且被档案引用者才准 pickup 进 `locked/`。
+6. **除名即记档**：作废母带挪 `~/.local/share/Trash/`（禁止 `rm`），并在 `locked/README.md` 除名表写明原因与去向；**只改档案不删物理件 = 假除名**。
 
 ---
 
 ## 二、 角色声音资产全息总表 (严格反映当前实际 Constraint)
 
 ### 🟢 梯队一：定板已锁定资产 (Phase 1 · 核心首发 5 人组)
-> 拥有经过多轮听感比对已锁死的原始母带，声纹已哈希固化在 `/home/ben/Music/character_samples/`。
+> **物理落点分两层**：定版声底已 pickup 至冻结库 `/home/ben/Music/voice_assets/locked/`（随附 `SHA256SUMS.txt` 全量指纹）；实验场 `/home/ben/Music/character_samples/` 只留盲测样音与废弃件。
+> ⚠ 下表「物理母带」列的 `NN_` 前缀是**历史创建序号**，既不等于 `cast_order` 也不等于 `voice_asset_id`，命名规范待重立（见 §四）。
 
 | 席位 | 声学ID | 花名 | 法定真名 | 物理母带文件 (`.wav`) | F0目标区间 | 语言/方言调谐 | 传输链路 | 当前工程状态 |
 |:---:|:---:|:---:|:---:|---|:---:|---|:---:|:---:|
-| **01** | `VOICE_01` | [青衣](./01_青衣_Qingyi__VOICE01.md) | **秦雍琼** | `01_qingyi_青衣.wav` | 210-235Hz | 央视级李梓萌标准国语 / 清澈端庄 | Direct Clean | **🔒 已锁死 (Locked)** |
+| **01** | `VOICE_01` | [青衣](./01_青衣_Qingyi__VOICE01.md) | **秦雍琼** | `qingyi_vivian_v2_cultural_anchor.wav` | 210-235Hz | 央视级李梓萌标准国语 / 清澈端庄 | Direct Clean | **🔒 已锁死 (Locked)** |
 | **03** | `VOICE_02` | [峨眉](./03_峨眉_Emei__VOICE02.md) | **梅心易** | `02_emei_峨眉.wav` | 135-155Hz | 椒盐川普 (0.75 档) / 散打评书底色 | Direct Clean | **🔒 已锁死 (Locked)** |
 | **04** | `VOICE_03` | [乐山](./04_乐山_Leshan__VOICE03.md) | **游牧仁** | `03_leshan_乐山.wav` | 125-145Hz | 地道四川话 (1.0 档 ➔ 讲课降档) | Direct Clean | **🔒 已锁死 (Locked)** |
 | **05** | `VOICE_04` | [渔阳](./05_渔阳_Yuyang__VOICE04.md) | **于鲜洋** | `05_yuyang_渔阳.wav` | 130-150Hz | 老北京京片子儿化音 / 华尔街中英混流 | Feishu DSP | **🔒 已锁死 (Locked)** |
@@ -75,9 +84,9 @@ flowchart TD
 
 ---
 
-## 三、 人物声音圣经：八层工业级生产规范 (Standard Schema)
+## 三、 人物声音圣经：九层工业级生产规范 (Standard Schema)
 
-后续每个分册在扩建定稿时，必须严格遵守以下八层结构（不得缺项，不得用文学辞藻替代工程参数）：
+每个分册在扩建定稿时，必须严格遵守以下九层结构（不得缺项，不得用文学辞藻替代工程参数）：
 
 ```text
 1. 法定履历 (Jurisdictional Biography) —— 解决“他凭什么坐在这里”
@@ -85,10 +94,59 @@ flowchart TD
 3. 私人伤口 (Personal Vulnerability)   —— 为何研究此问题、怕失去什么、哪句话刺穿教授身份
 4. 人际拓扑 (Interpersonal Topology)   —— 尊重谁、看不起谁、替谁圆场、被谁说服丢脸、私下称呼
 5. 声学指纹 (Acoustic Fingerprint)     —— F0区间、语速、共鸣腔、口音浓度、笑声、激动反应
-6. 情绪状态机 (Emotion State Machine)  —— BASE / PROBE / ATTACK / DEFEND / BREAK / AFTERGLOW
+6. 情绪状态机 (Emotion State Machine)  —— BASE / PROBE / ATTACK / DEFEND / BREAK / AFTERGLOW（= 六合基线仓的六格）
 7. 禁演清单 (Negative Constraints)     —— 严格列出该角色绝不能出现的发音与表达禁忌
 8. 十二句校准台词 (12-Line Benchmark)  —— 统一横向拉开度测试数据集
+9. 生成谱系 (Voice Genealogy)          —— 见 §三之二：这个声音到底怎么来的，能不能重跑
 ```
+
+### §三之二 · 第 9 层「生成谱系」写法（本档案的**存在理由**）
+
+一份档案如果不能回答「换一个模型、换一个人，能不能把这个声音原样重造出来」，它就是文学随笔，不是资产档案。第 9 层**逐条母带**填下表，一格不许空：
+
+| 字段 | 填什么 | 为什么必须有 |
+| :--- | :--- | :--- |
+| `engine` | 具体引擎与端点（OmniVoice:9098 / Qwen3-TTS / CosyVoice2 / MiMo / BreezyVoice） | 换引擎＝换人 |
+| `mode` | **Voice Design**（文本捏人）还是 **Voice Clone**（种子参考音） | 两条路线不可混写 |
+| `instruct` | **逐字原文**，且必须在引擎闭词表内（见下） | 记“沉稳学者音”这种形容词等于没记 |
+| `ref_audio` | Clone 模式：参考音的**全路径 + SHA-256**；Design 模式：`null` | 没有这行，clone 就是无源之水 |
+| `speed` / `seed` | 数值原样，四舍五入都不许 | 0.88 与 1.00 不是同一个人 |
+| `post_dsp` | 是否挂飞书 MCU 窄带链（300/3200Hz 截断 + 粉红噪 + 50Hz 嗡鸣） | 干音与成音必须分账 |
+| `verdict` | 听定人、听定日期、废弃候选清单及废弃理由 | 防止同一错误方案被重跑 |
+
+### §三之三 · Design ➔ Clone 的回退律（管线拓扑）
+
+```
+① Voice Design  ──闭词表 instruct 捏人──▶  N 条候选
+        │            │
+        │            └─ 耳朵验收 ─▶ 听定 1 条 ─▶ 入 locked/ ＝ 该角色的**声底父母**
+        │                                        │
+        └──────────────────────────────────────  │
+                                                 ▼
+② Voice Clone  ◀── ref_audio = 声底父母 ──  kunpengzhi-audio-engine 抽 *_seed.pt
+                                                   │
+                          六格基线（base/probe/attack/defend/break/afterglow）
+                                                   │
+                                        情绪/语速/文案换档，声底不变
+```
+
+**三条硬规定：**
+
+1. **Clone 的参考音必须是 `locked/` 里的那条母带**（字节一致，SHA-256 可核）。现状：全库仅 `leshan_ref.wav` 做到（与 `leshan_chuanpu_03_共祖.wav` 字节相同）；`qingyi_ref.wav`、`emei_ref.wav` **父母不明，按律作废待重抽**。
+2. **Clone 效果不佳 ⇒ 回退 ①，不在 ② 上打补丁。** 因为 Voice Clone 只继承音色，不继承表现力：参考音本身没情绪层次，换多少 seed 都救不回来。回退动作＝重发 Design 候选（改 `instruct` 或换引擎）→ 重新听定 → 换新声底父母 → 重抽 seed。旧 seed 连同其产出**整批**进 `~/.local/share/Trash/`，禁止新旧混用。
+3. **`instruct` 是闭集，不能自由发挥。** OmniVoice 只认：`男/女`、`儿童/少年/青年/中年/老年`、`极低音调/低音调/中音调/高音调/极高音调`、`耳语`、方言（四川话/青岛话/河南话/石家庄话…），且不可中英混写。**“温和”“沙哑”“学者气”写进去直接 500 报错** —— 这类质感只能靠参考音与语速做出来，记档案时不许冒充参数。
+
+### §三之四 · 命名规范（2026-09-21 起重立）
+
+历史件（`01_qingyi_青衣.wav`、`04_zijin_紫金.wav`…）的 `NN_` 前缀是**创建流水号**，既不是席位也不是资产号，属事故。**冻结库永不重命名，旧名一律保留并登记别名**；新规矩只约束今后入库件：
+
+| 位置 | 命名 | 说明 |
+| :--- | :--- | :--- |
+| `voice_assets/locked/`（平铺） | `<花名拼音>_<engine>_<编号或语义>.wav` | 例 `zijin_omnivoice_v3_kaochang.wav`；**禁止**数字前缀 |
+| `voice_assets/<花名>/`（六合仓） | `<state>.wav` | 身份由路径给出，文件名不再重复角色，例 `attack.wav` |
+| 试音室原子 | `<季>p<集>_<state>_<4位时序>.wav` | 半成品，永不进冻结库 |
+| 毕业成品 | `s{季:02d}_ep{集:02d}_para{段:02d}_{时序}_{花名}.wav` | 沿用既有规范 |
+| 档案文件 | `NN_花名_Pinyin__VOICEnn.md` | `NN`＝席位，`VOICEnn`＝声学号，两者**永不混用** |
 
 ---
 

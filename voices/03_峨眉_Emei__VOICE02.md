@@ -42,7 +42,32 @@ transmission_channel: "Direct Clean"
 
 ### 2. 情绪克隆与多模态实测
 峨眉是茶台上的辩论核心，必须能够表达丰富的情绪起伏：
-- **基准母带**：[02_emei_峨眉.wav](file:///home/ben/Music/character_samples/02_emei_峨眉.wav)
-- **开场定场诗**：[emei_opening_poem_final.wav](file:///home/ben/Music/character_samples/emei_opening_poem_final.wav)
-- **愤怒与冷笑抗辩**：[emei_test_anger_clone.wav](file:///home/ben/Music/character_samples/emei_test_anger_clone.wav)（展现其面对伪史时的拍案而起）
+- **基准母带**：[02_emei_峨眉.wav](file:///home/ben/Music/voice_assets/locked/02_emei_峨眉.wav)（7.00s · CosyVoice2 川普 0.75 档）
+- **开场定场诗**：[s01_ep01_para00_0001_emei.wav](file:///home/ben/Music/san_geng_dao_chang/s01/s01_ep01_para00_0001_emei.wav)（32.16s · 毕业母带）
+  - ~~`emei_opening_poem_final.wav`~~ —— **查无此文件**（2026-09-21 全库核查），原记录为虚记；定场诗实际以流水线命名落在 `san_geng_dao_chang/s0N/`，ep01–ep11 每集各有 para00/para99 一对。
+- **愤怒与冷笑抗辩**：[emei_test_emotions_clone.wav](file:///home/ben/Music/character_samples/emei_test_emotions_clone.wav)（9.30s · 展现其面对伪史时的拍案而起；仍在实验场，未达冻结标准）
+- **OmniVoice 克隆种子**：`emei_seed.pt`（2026-05-31）+ `emei_ref.wav`（5.42s · instruct `男，老年，极低音调，四川话` · ref_text“我叫峨眉，峨眉山的峨眉……”）
+  - ⚠ `男，老年，极低音调` 与 §一 的“135Hz–155Hz **干练成熟男性中低音**、散打评书底色”明显不是一档人；该 ref 的 5.42s 也与定版母带 7.00s 不同源，且定版路线是 **CosyVoice2**、种子路线是 **OmniVoice**，无父子关系记录 —— 引擎 `/speakers` 里的“峨眉”与档案里的“峨眉”目前不是同一个声底。
 - **席位通道**：在场肉身席位，高保真近场输出。
+## 三、生成谱系 (Voice Genealogy) · 2026-09-21 补录
+
+> **定版声底**：`02_emei_峨眉.wav` · 7.00s · SHA-256 `db0385deb9a0ea78df23c…`
+> **六合仓**：`~/Music/voice_assets/emei/` —— 当前 **0/6 格已落**。
+
+| 字段 | 值 | 可复核性 |
+| :--- | :--- | :---: |
+| engine | **CosyVoice2 · 川普 0.75 档**（档案 §二 定版） | ✅ |
+| mode | **Clone**（依赖参考样本；样本出处见下） | ⚠ |
+| instruct | 方言强度 0.75 档（CosyVoice2 侧参数，非 OmniVoice 闭词表） | ⚠ |
+| ref_audio | **不可考** —— `02_emei_峨眉.wav` 自身的父母没有记档 | ❌ |
+| speed / seed | **不可考** | ❌ |
+| post_dsp | 无（Direct Clean 近场） | ✅ |
+| verdict | 2026-09-17 情绪实测（`emei_test_emotions_clone.wav` 9.30s，仍在实验场未冻结）；`emei_test_s00_design.wav`、`cv2_test_emei_matched.wav` 为同期候选 | ⚠ 口述 |
+
+### 谱系断裂（必读）
+
+- **`emei_seed.pt`（`07c5ef9e…`）/ `emei_ref.wav`（5.42s · `02e72903…` · instruct `男，老年，极低音调，四川话` · ref_text“我叫峨眉，峨眉山的峨眉。我是四川人，说起四川话来那硬是巴适得很！”）**
+  与 §一 档案设定（**46 岁中年**、F0 **135–155Hz 干练男性中低音**）**两格全违**：`老年` ✗、`极低音调` ✗。
+  且该 ref 5.42s ≠ 定版母带 7.00s，无字节同源关系 —— **父母不明，按 §README 谱系铁律 6 判作废**。
+- **`speaker: 峨眉` 当前不可用**：调用它得到的是“老年极低音调”的另一个人，会直接推翻本角色的定版。
+- **`emei_opening_poem_final.wav` 查无此件**（§二 原记虚记）；定场诗实际以流水线命名毕业在 `san_geng_dao_chang/s01…s11/` 的 `para00/para99`（ep01–ep11 各一对，共 22 条）。

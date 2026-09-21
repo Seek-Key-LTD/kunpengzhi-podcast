@@ -44,6 +44,29 @@ transmission_channel: "Feishu DSP (MCU)"
 - **窄带滤波器（Bandpass EQ）**：削切 300Hz 以下次低频与 3200Hz 以上高频，模拟真实视讯通话的带宽质感。
 - **微量电流底噪**：叠加轻度粉红噪声与 50Hz 传输嗡鸣，营造“人在南京紫金山实验室、隔着屏幕接入茶台”的逼真临场感。
 - **基准母带文件**：
-  - [04_zijin_紫金.wav](file:///home/ben/Music/character_samples/04_zijin_紫金.wav)（总纲母带）
-  - [zijin_wang_yongle_ryan.wav](file:///home/ben/Music/character_samples/zijin_wang_yongle_ryan.wav)（李永乐式推导基准）
-  - [zijin_wang_yongle_aiden.wav](file:///home/ben/Music/character_samples/zijin_wang_yongle_aiden.wav)（冷静解构版）
+  - [04_zijin_紫金.wav](file:///home/ben/Music/voice_assets/locked/04_zijin_紫金.wav)（总纲母带）
+  - [zijin_wang_yongle_ryan.wav](file:///home/ben/Music/voice_assets/locked/zijin_wang_yongle_ryan.wav)（李永乐式推导基准）
+  - [zijin_wang_yongle_aiden.wav](file:///home/ben/Music/voice_assets/locked/zijin_wang_yongle_aiden.wav)（冷静解构版）
+## 三、生成谱系 (Voice Genealogy) · 2026-09-21 补录
+
+> **定版声底**：`04_zijin_紫金.wav` · 10.36s · SHA-256 `908f8f4153df53860225f…`
+> 双基准：`zijin_wang_yongle_ryan.wav` 23.36s（李永乐式推导）、`zijin_wang_yongle_aiden.wav` 28.16s（冷静解构）
+> **六合仓**：`~/Music/voice_assets/zijin/` —— 当前 **0/6 格已落**。
+
+| 字段 | 值 | 可复核性 |
+| :--- | :--- | :---: |
+| engine | **OmniVoice（:9098）+ 慢速推导** | ✅ |
+| mode | **Voice Design**（`instruct` 捏人，非 clone） | ✅ |
+| instruct | 合法闭词表组合候选：`男，中年，中音调`(optA) / `男，中年，低音调`(optB) / `男，青年，中音调`(optC) | ⚠ 定版究竟是哪一条**未记档** |
+| ref_audio | `null`（Design 模式无参考音，故无父母可查） | ✅ |
+| speed | **§一 定版 0.88x ~ 0.90x**（慢语速推导） | ✅ |
+| seed | **不可考** | ❌ |
+| post_dsp | **飞书 MCU 窄带链**（同上 300/3200Hz + 粉红噪 + 50Hz） | ⚠ |
+| verdict | 2026-09-18 三选型（`zijin_optA_中年_中音调` / `optB_青年_中音调` / `optC_中年_低音调`）+ `cv2_anhui` / `cv2_nanjing` 两路 CV2 地域试验，均留实验场 | ⚠ 口述 |
+
+### 实测约束（写死，防后人重踩）
+
+1. **`instruct` 是闭集**：只认 `男/女`、`儿童/少年/青年/中年/老年`、`极低音调/低音调/中音调/高音调/极高音调`、`耳语`、方言名；**写“温和”“沙哑”直接 500 报错**（`ValueError: Unsupported instruct items`），且不可中英混写。
+2. **`instruct` 不改变输出时长**，只有 `speed` 改变，且**亚线性**（实测 speed 1.06→1.10 得 5.72s→5.52s）。拿时长当 A/B 判据 = 无效测试。
+3. **Design ➔ Clone 的必然性**：紫金要六格分装，纯 Design 每次抽风不同，不可复用 —— **必须**先用定版母带抽 `zijin_seed.pt`，再以 clone 锁声底、用 speed 与文案做情绪分档。clone 若失真，回退 Design 重选声底，不在 seed 上打补丁。
+4. `04_zijin_紫金.wav` 只有 10.36s，作 clone 参考音偏短，重抽 seed 时建议改用 `zijin_wang_yongle_ryan.wav`（23.36s）或补产 10–15s 干净段。

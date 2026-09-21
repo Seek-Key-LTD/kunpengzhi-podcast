@@ -43,8 +43,38 @@ transmission_channel: "Direct Clean"
 ### 2. 方案定格与样音库
 - **引擎组合**：OmniVoice（四川方言标签指令）+ 真实田野学者特征声底微调。
 - **基准母带文件**：
-  - [03_leshan_乐山.wav](file:///home/ben/Music/character_samples/03_leshan_乐山.wav)（总纲母带）
-  - [leshan_chuanpu_01_问好.wav](file:///home/ben/Music/character_samples/leshan_chuanpu_01_问好.wav)（茶馆日常入席）
-  - [leshan_chuanpu_02_白圭.wav](file:///home/ben/Music/character_samples/leshan_chuanpu_02_白圭.wav)（先秦商贾史论述）
-  - [leshan_chuanpu_03_共祖.wav](file:///home/ben/Music/character_samples/leshan_chuanpu_03_共祖.wav)（学术长篇降档示范）
+  - [03_leshan_乐山.wav](file:///home/ben/Music/voice_assets/locked/03_leshan_乐山.wav)（总纲母带）
+  - [leshan_chuanpu_01_问好.wav](file:///home/ben/Music/voice_assets/locked/leshan_chuanpu_01_问好.wav)（茶馆日常入席）
+  - [leshan_chuanpu_02_白圭.wav](file:///home/ben/Music/voice_assets/locked/leshan_chuanpu_02_白圭.wav)（先秦商贾史论述）
+  - [leshan_chuanpu_03_共祖.wav](file:///home/ben/Music/voice_assets/locked/leshan_chuanpu_03_共祖.wav)（学术长篇降档示范）
+- **OmniVoice 克隆种子（✅ 全库唯一谱系可查的一条）**：`leshan_seed.pt`（2026-09-18）+ `leshan_ref.wav`（12.11s · instruct `男，中年，低音调，四川话`）
+  - **经 SHA-256 比对：`leshan_ref.wav` 与 `leshan_chuanpu_03_共祖.wav` 字节完全相同**（`b299e719…f28da`），即 clone 参考音就是冻结库里的毕业母带 —— design ➔ clone 的血统链在此成立，全库仅此一条。
 - **席位通道**：前两期在场肉身；第三期起进驻广汉考古工地，飞书远程带少许现场风噪。
+## 三、生成谱系 (Voice Genealogy) · 2026-09-21 补录
+
+> **定版声底**：`03_leshan_乐山.wav` · 8.61s · SHA-256 `3cfca1c949ad7d1468671…`；长篇降档示范 `leshan_chuanpu_03_共祖.wav` · 12.11s · `b299e719…f28da`
+> **六合仓**：`~/Music/voice_assets/leshan/` —— 当前 **0/6 格已落**。
+
+| 字段 | 值 | 可复核性 |
+| :--- | :--- | :---: |
+| engine | **OmniVoice（:9098）· 四川方言标签指令** | ✅ |
+| mode | **Clone**（`speaker: 乐山`） | ✅ |
+| instruct | `男，中年，低音调，四川话` —— **全闭词表合法项，逐字可重跑** | ✅ |
+| ref_audio | `leshan_ref.wav` · 12.11s · **SHA-256 `b299e719fdd8639e2a41b6db5350089926ee950ad99199c75793375a1a8f28da`** | ✅ |
+| seed | `leshan_seed.pt` · `d8f5714073bff028…`（2026-09-18 09:53） | ✅ |
+| post_dsp | 无（前两期 Direct Clean；第三期起工地风噪） | ✅ |
+| verdict | 2026-09-18 四选型（`leshan_optA 中年低音`/`optB 中年极低音`/`optC 老年低音`/`optD 老年极低音`）后定 `中年·低音`；`leshan_seed_verify.wav` 为种子自检件 | ✅ |
+
+### ✅ 全库唯一谱系完整的一条
+
+**`leshan_ref.wav` 与冻结库 `leshan_chuanpu_03_共祖.wav` 字节完全相同**（SHA-256 一致），即 clone 参考音就是档案里那条毕业母带：
+
+```text
+Voice Design(四选型盲测) ➔ 听定 chuanpu_03_共祖 ➔ 入 locked/ ➔ 抽 leshan_seed.pt ➔ speaker: 乐山
+```
+
+Design ➔ Clone 血统闭合，**换机可原样重跑**。本角色可作为其余 16 席的谱系模板。
+
+### 待补
+
+- 档案 §一 定版 `pipeline` 写的是 **MiMo-TTS（川话 1.0 档➔降档）**，而实际冻结的 clone 走 **OmniVoice 四川话标签** —— 两法统并存且互不相认，须由主理人裁定谁是青衣之下的正式路线（〔悬〕）。

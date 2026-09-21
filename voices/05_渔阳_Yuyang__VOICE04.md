@@ -40,9 +40,29 @@ transmission_channel: "Feishu DSP (MCU)"
 ### 2. 模型选型与 Qwen3 Dylan 引擎突破
 - 在对比评测中，引入了 `Qwen3-TTS` 英文与多语种混流模型（代号 Dylan 架构），与 OmniVoice 京音底色深度融合，打通了中英无缝切换。
 - **基准母带文件**：
-  - [04_yuyang_渔阳.wav](file:///home/ben/Music/character_samples/04_yuyang_渔阳.wav)（总纲母带）
-  - [yuyang_qwen3_dylan.wav](file:///home/ben/Music/character_samples/yuyang_qwen3_dylan.wav)（双语基线母带）
-  - [yuyang_mixed_01_dead_people.wav](file:///home/ben/Music/character_samples/yuyang_mixed_01_dead_people.wav)（“死人借债”经典论述）
-  - [yuyang_mixed_02_debt_as_money.wav](file:///home/ben/Music/character_samples/yuyang_mixed_02_debt_as_money.wav)（货币本质中英混搭）
-  - [yuyang_mixed_03_token_api.wav](file:///home/ben/Music/character_samples/yuyang_mixed_03_token_api.wav)（赛博算力地租论述）
+  - [05_yuyang_渔阳.wav](file:///home/ben/Music/voice_assets/locked/05_yuyang_渔阳.wav)（总纲母带）
+  - [yuyang_qwen3_dylan.wav](file:///home/ben/Music/voice_assets/locked/yuyang_qwen3_dylan.wav)（双语基线母带）
+  - [yuyang_mixed_01_dead_people.wav](file:///home/ben/Music/voice_assets/locked/yuyang_mixed_01_dead_people.wav)（“死人借债”经典论述）
+  - [yuyang_mixed_02_debt_as_money.wav](file:///home/ben/Music/voice_assets/locked/yuyang_mixed_02_debt_as_money.wav)（货币本质中英混搭）
+  - [yuyang_mixed_03_token_api.wav](file:///home/ben/Music/voice_assets/locked/yuyang_mixed_03_token_api.wav)（赛博算力地租论述）
 - **席位通道**：前两期挂飞书窄带传输；第三期起肉身常驻成都茶台，转为高保真大电容麦克风通道。
+## 三、生成谱系 (Voice Genealogy) · 2026-09-21 补录
+
+> **定版声底**：`05_yuyang_渔阳.wav` · 9.29s · SHA-256 `2e42cd58a2ea6ca76aaef…`；双语基线 `yuyang_qwen3_dylan.wav` · 15.20s
+> **六合仓**：`~/Music/voice_assets/yuyang/` —— 当前 **0/6 格已落**。
+
+| 字段 | 值 | 可复核性 |
+| :--- | :--- | :---: |
+| engine | **Qwen3-TTS（Dylan 京普混流架构）** | ✅ |
+| mode | **预置/外部音色直出**（OmniVoice 侧无 `yuyang` 种子） | ✅ |
+| instruct | `null`（不经 OmniVoice 闭词表） | ✅ |
+| ref_audio | **不可考** | ❌ |
+| speed / seed | **不可考** | ❌ |
+| post_dsp | **飞书 MCU 窄带链**：300Hz 以下／3200Hz 以上截断 + 粉红噪声 + 50Hz 嗡鸣（ep01–ep02；ep03 起转近场） | ⚠ 效果链本身未脚本化 |
+| verdict | 2026-09-18 中英日四语适配盲测：`dylan_v1_scholarly`/`v2_fast_crisp`/`v3_husky_deep`/`v4_pitch_down` + `en_01..04` + `ja_01/02`，定 `mixed` 一路 | ⚠ 口述 |
+
+### 谱系缺口（必读）
+
+- **档案 `physical_master` 曾误写 `04_yuyang_渔阳.wav`**，实际冻结件为 `05_yuyang_渔阳.wav`（席位 05／声学号 VOICE_04 撞号事故）—— 2026-09-21 已改回，但**旧名不得再引用**。
+- 引擎 `/speakers` **无“渔阳”**：本角色目前只能在 Qwen3-TTS 侧复现，OmniVoice 通道不可 clone。若要六格分装，须先按 README 谱系铁律用定版母带抽自有 seed。
+- 实验场遗留 20 余条 `yuyang_*` 候选（含 `omnivoice_clone_en/mix`）从未归档 verdict，重跑前须先清账。
