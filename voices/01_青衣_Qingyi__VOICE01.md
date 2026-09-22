@@ -81,26 +81,54 @@ transmission_channel: "Direct Clean"
   - **2026-09-21 夜主理人已裁**：**只走 Vivian 直出**。用定版母带抽 seed 转 E1 clone 的重铸六格已产出一批，试听判"**这个声音一听阅历就不够**"，全部判废挪 `voice_assets/qingyi/不合格隔离/E1clone重铸_判废20260921/`。**青衣永久禁止走 E1 Clone 通道**。
 - **通道处理**：
   - 在场肉身席位，走**干净近场通道**（无电话窄带，无飞书压缩，保留呼吸声与胸腔温润感）。
-## 四、生成谱系 (Voice Genealogy) · 2026-09-22 更新
+## 四、生成谱系 (Voice Genealogy) · 2026-09-22 二次改判
 
-> **定版声底**：`locked/qingyi_vivian_v2_cultural_anchor.wav` · 25.04s · SHA-256 `e736a495d50b501d8fe1e3fd5764e3e23dce419b0f52861751b5e4f9f64a1a1f`（2026-09-22 实测补全；档案旧写 `…501da1a1f…` 系截断误录）
-> **六合仓**：`~/Music/voice_assets/qingyi/` —— **6/6 格已落**（E2 Vivian 直出，2026-09-21 21:54），**待主理人听定后 pickup 入 `locked/`**。
+> **定版声底（＝clone 的参考音）**：`locked/qingyi_vivian_v2_cultural_anchor.wav` · 25.04s · SHA-256 `e736a495d50b501d8fe1e3fd5764e3e23dce419b0f52861751b5e4f9f64a1a1f`
+> **声纹固化件**：`~/Projects/rescue/seeds/e2_prompts/qingyi_vivian_xvec.pt`（E2 `VoiceClonePromptItem`，`x_vector_only_mode=true`，由 `scripts/audition.py` 首跑时抽取）
+> **六合仓**：`~/Music/voice_assets/qingyi/` —— 现 **1/6 格**（`base.wav`，clone 首件，SHA `bbfd0a2a7be5a9d6b5cba5f7a783039e627a1de4bb4690e66a105eeece2dfb65`，**待耳朵终审**）
+
+### 改判史（三次，全留此立此存照）
+
+| # | 日期 | 当时的说法 | 结局 |
+|:--:|:---|:---|:---|
+| 1 | 2026-09-21 夜 | 用 E1 clone 重铸青衣正声 | 主理人判"**这个声音一听阅历就不够**"，六格判废 ｜
+| 2 | 2026-09-22 晨 | "E2 Vivian 直出六格＝一人六态；`spk_id` 焊死声纹 ⇒ 可原样重跑" | **虚记，被耳朵推翻**：主理人判"**这里边肯定是 6 个人**" |
+| 3 | 2026-09-22 午 | 读源码坐实（坑账 **P-14**） | `generate_custom_voice` **无 seed、无 prompt 入口**，codebook 每次调用重采样；且逐格不同 `instruct` **会连音色一起改** ⇒ 直出六格＝六次独立发声，结构上就不保证同人 |
+
+**现行唯一合法路线**：E2 **Voice Clone** —— base 权重 `~/Apps/Qwen3-TTS/model_local_full` ＋ 上面那颗 `.pt`。代价写死在协议里：**clone 通道不接收 instruct**，六格的情绪差一律由**台词**承担（标点、句式、语气词、断句）。
 
 ```bash
 # 角色差异全部在 characters/qingyi.json 的 audition 块；驱动器只有 scripts/audition.py
-python3 scripts/audition.py --character qingyi
+~/Apps/Qwen3-TTS/.venv/bin/python scripts/audition.py --character qingyi                # 出六合（clone）
+~/Apps/Qwen3-TTS/.venv/bin/python scripts/audition.py --character qingyi --takes 4      # 选型：连抽候选，落试音室不进仓
 ```
 
 | 字段 | 值 | 可复核性 |
 | :--- | :--- | :---: |
-| engine | **E2 Qwen3-TTS** — 权重 `~/Projects/rescue/models/qwen3-customvoice`（1.7B-CustomVoice） | ✅ |
-| 运行环境 | `~/Apps/Qwen3-TTS/.venv/bin/python`（transformers **4.57.3**）；⚠ miniconda 的 5.x 载权重报 `KeyError: 'default'` | ✅ |
-| mode | **Custom Voice**（预置音色直出；无 ref_audio、无 seed —— 声纹由 `spk_id` 固定） | ✅ |
-| speaker | **`Vivian`** | ✅ |
-| language | `Chinese` | ✅ |
-| speed | E2 无 speed 入口，语速写进 `instruct` | ✅ |
-| post_dsp | **无**（Direct Clean 近场，不做加厚；青衣的阅历感由 Vivian 声纹本身承担 —— 与渔阳相反） | ✅ |
-| 可复现性 | ✅ 声纹级可重跑／⚠ take 级不可重跑（坑账 P-12：同参数两次调用字节不同、F0 稳）⇒ 重跑必重听 | ✅ |
+| engine | **E2 Qwen3-TTS** | ✅ |
+| mode | **Voice Clone**（不再是 Custom Voice） | ✅ |
+| 权重 | `~/Apps/Qwen3-TTS/model_local_full`（**base**，`tts_model_type: base` —— CustomVoice 权重不支持 clone） | ✅ |
+| 运行环境 | 只能用 `~/Apps/Qwen3-TTS/.venv/bin/python`（transformers **4.57.3**）；miniconda 的 5.x 会 `KeyError: 'default'` | ✅ |
+| 声纹种子 | `qingyi_vivian_xvec.pt`（父母＝定版母带，`x_vector_only_mode=true`：只取说话人向量，不带 ref_text 的 ICL，免得把母带台词复述进新格） | ✅ |
+| speaker | `Vivian` —— **仅作"声底父母从哪来"的记号，不参与本次调用** | ✅ |
+| language | `Chinese`；speed：E2 无入口 | ✅ |
+| instruct | **不适用**（本通道不接收）。旧六格的逐格 instruct 见下表，只作选型记录 | ✅ |
+| post_dsp | **无**（Direct Clean 近场，不做加厚；青衣的阅历感由声底本身承担 —— 与渔阳相反） | ✅ |
+| 可复现性 | ✅ **声纹级**（prompt 存盘，换机可同人重跑）／⚠ **take 级不可**（P-12：重跑必重听）／⚠ **环境级**（非常驻，需手动起单次进程） | ✅ |
+
+### 听感对照（2026-09-22 交主理人裁）
+
+试音室 `~/Music/san_geng_dao_chang_audition/听感对照_qingyi_20260922/`：
+`甲_定版母带_Vivian.wav`（`e736a495…`）／`乙_新clone_base.wav`（`bbfd0a2a…`，10.08s F0 212.4Hz 低频占比 5.5%）／`丙_旧CustomVoice连抽_base.wav`（`3f065e72…`，10.56s）。
+**要裁的问题**：乙是不是甲？丙又是不是甲？—— 只有耳朵算数（P-07）。
+
+### ⚠ 声纹余弦不能替耳朵（P-15，本日实测）
+
+曾想用 E2 `extract_speaker_embedding` 的余弦矩阵机器坐实"六个人"。拿真·不同人做对照组后作废：紫金↔青衣 0.920–0.923、渔阳(男)↔青衣 0.936–0.943、**乐山(川话男)↔青衣定版母带 0.955–0.972**，而青衣六格互比 0.965–0.993。动态范围只有 0.92–0.99 ⇒ 抓得住"接错线"，**抓不住"换脸"**。`--identify` 从此只作粗筛（<0.93 查混线），禁止据此判同人。
+
+### 已判废：E2 CustomVoice 六连抽（2026-09-21 21:54 产 · 六件挪 `voice_assets/qingyi/不合格隔离/E2_CustomVoice六连抽_判六人_20260922/`，未 `rm`）
+
+> 下表数据保留备查：它同时是"**逐格换 instruct ⇒ 逐格换脸**"的现场证据（`defend` 掉到 177.8Hz、`afterglow` 冲到 229.7Hz，同一"人"跨度 52Hz）。
 
 **逐格 `instruct`**（自然语言，只管情绪/节奏；主理人实测 E2 **不听年龄指令**，见坑账 §一·C）
 
@@ -128,3 +156,9 @@ python3 scripts/audition.py --character qingyi
 1. **今晨**：主理人试听上表六格 ➔ 通过者 pickup 入 `locked/`（命名 `qingyi_<state>.wav`，禁数字前缀），同步 `SHA256SUMS.txt`。
 2. 定场诗／散场诗用同一 `speaker=Vivian` 直出，**不引入第二条声纹**。
 3. **禁止**再为青衣抽 seed 或走 Design：预置音色的声纹即资产，环境级依赖记明权重路径与 venv 已足够（坑账 P-13）。
+### 待办（按主理人法）
+
+1. **今日**：主理人听"听感对照"三件 ➔ 定"乙是不是青衣"。是 ➔ 出齐其余五格；不是 ➔ **不许在 prompt 上打补丁**，回 Custom Voice 用 `--takes N` 重选声底父母，重抽 `.pt`，本档案留改判记录。
+2. 六格过耳后 pickup 入 `locked/`（命名 `qingyi_<state>.wav`，禁数字前缀），同步 `SHA256SUMS.txt` 并 `sha256sum -c` 核条数。
+3. 定场诗／散场诗与六合**同一条 clone 通道**出（`--states` 只跑 base 词表外文本另议），不引入第二条声纹。
+4. **禁止**再走 E1（判废于第 1 次改判）；**禁止**用 Custom Voice 直出任何"六格基线"（P-14）。
