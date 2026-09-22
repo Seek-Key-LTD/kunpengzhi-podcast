@@ -6,7 +6,7 @@ legal_name: "秦雍琼"
 status: "locked"
 physical_master: "qingyi_vivian_v2_cultural_anchor.wav"
 f0_target: "210Hz-235Hz"
-pipeline: "OmniVoice Seed + Qwen3-TTS (Vivian)"
+pipeline: "E2 Qwen3-TTS CustomVoice 1.7B · spk_id=Vivian 直出（E1 clone 通道已判废禁用）"
 transmission_channel: "Direct Clean"
 ---
 
@@ -78,36 +78,53 @@ transmission_channel: "Direct Clean"
 - **OmniVoice 克隆种子（⚠ 法统断裂）**：
   - `qingyi_seed.pt`（2026-05-31）+ `qingyi_ref.wav`（4.45s，instruct `女，青年`，ref_text“我叫青衣，青衣江的青衣……”）
   - 该 ref 既不是已作废的 `01_qingyi_青衣.wav`（7.15s），也不是定版的 `qingyi_vivian_v2`（25.04s），**父母不明**。
-  - 结论：引擎 `/speakers` 里那个“青衣”仍在使用来历不明的旧声底，与档案定版声底**不是同一个人**。要么用定版声底重建种子，要么禁用 clone 通道、只走 Vivian 直出。
+  - **2026-09-21 夜主理人已裁**：**只走 Vivian 直出**。用定版母带抽 seed 转 E1 clone 的重铸六格已产出一批，试听判"**这个声音一听阅历就不够**"，全部判废挪 `voice_assets/qingyi/不合格隔离/E1clone重铸_判废20260921/`。**青衣永久禁止走 E1 Clone 通道**。
 - **通道处理**：
   - 在场肉身席位，走**干净近场通道**（无电话窄带，无飞书压缩，保留呼吸声与胸腔温润感）。
-## 四、生成谱系 (Voice Genealogy) · 2026-09-21 补录
+## 四、生成谱系 (Voice Genealogy) · 2026-09-22 更新
 
-> **定版声底**：`qingyi_vivian_v2_cultural_anchor.wav` · 25.04s · SHA-256 `e736a495d50b501da1a1f…`
-> **六合仓**：`~/Music/voice_assets/qingyi/` —— 当前 **0/6 格已落**（base/probe/attack/defend/break/afterglow 全缺）。
+> **定版声底**：`locked/qingyi_vivian_v2_cultural_anchor.wav` · 25.04s · SHA-256 `e736a495d50b501d8fe1e3fd5764e3e23dce419b0f52861751b5e4f9f64a1a1f`（2026-09-22 实测补全；档案旧写 `…501da1a1f…` 系截断误录）
+> **六合仓**：`~/Music/voice_assets/qingyi/` —— **6/6 格已落**（E2 Vivian 直出，2026-09-21 21:54），**待主理人听定后 pickup 入 `locked/`**。
+
+```bash
+# 角色差异全部在 characters/qingyi.json 的 audition 块；驱动器只有 scripts/audition.py
+python3 scripts/audition.py --character qingyi
+```
 
 | 字段 | 值 | 可复核性 |
 | :--- | :--- | :---: |
-| engine | **Qwen3-TTS · 预置说话人 `Vivian`** | ✅ |
-| mode | **既非 Design 亦非 Clone —— 预置音色直出**（无 instruct、无 ref） | ✅ |
-| instruct | `null`（预置音色不适用） | ✅ |
-| ref_audio | `null` | ✅ |
-| speed | **不可考**（未记档） | ❌ |
-| seed | **不可考**（未记档） | ❌ |
-| post_dsp | 无（Direct Clean 近场） | ✅ |
-| verdict | 2026-09-18 四选型盲测（`comp_qwen3_vivian` / `comp_qwen3_serena` / `comp_omnivoice_seed` / `comp_omnivoice_design`）后，主理人听定 Vivian；Serena 判“过冷”，OmniVoice 两路判“无台长定力” | ⚠ 口述 |
+| engine | **E2 Qwen3-TTS** — 权重 `~/Projects/rescue/models/qwen3-customvoice`（1.7B-CustomVoice） | ✅ |
+| 运行环境 | `~/Apps/Qwen3-TTS/.venv/bin/python`（transformers **4.57.3**）；⚠ miniconda 的 5.x 载权重报 `KeyError: 'default'` | ✅ |
+| mode | **Custom Voice**（预置音色直出；无 ref_audio、无 seed —— 声纹由 `spk_id` 固定） | ✅ |
+| speaker | **`Vivian`** | ✅ |
+| language | `Chinese` | ✅ |
+| speed | E2 无 speed 入口，语速写进 `instruct` | ✅ |
+| post_dsp | **无**（Direct Clean 近场，不做加厚；青衣的阅历感由 Vivian 声纹本身承担 —— 与渔阳相反） | ✅ |
+| 可复现性 | ✅ 声纹级可重跑／⚠ take 级不可重跑（坑账 P-12：同参数两次调用字节不同、F0 稳）⇒ 重跑必重听 | ✅ |
+
+**逐格 `instruct`**（自然语言，只管情绪/节奏；主理人实测 E2 **不听年龄指令**，见坑账 §一·C）
+
+| 格 | instruct | 台词 | 时长 | F0 中位 | IQR | <250Hz 占比 | SHA-256 |
+| :--- | :--- | :--- | ---: | ---: | :--- | ---: | :--- |
+| base | 四十多岁的女性副台长，央视级字正腔圆标准普通话，端庄沉稳，中高频明亮但不尖，吐字干净有控制力，带着长期主持大局的阅历感 | 各位师傅、朋友，这里是FM九九点八。今晚三更开卷，我们把该审的账，摊在桌面上看。 | 10.56s | **212.4Hz** | 178–231 | 25.2% | `3f065e72fc9f68c66dfde338e40203d57612db7dc4393263724c7e6c00d33761` |
+| probe | 同一个人，语气转为不动声色的试探，尾音略收，咬字放慢半拍，不抬高音量 | 你这句话，出处在哪儿？我做了三十年编辑，没有出处的引号，我一个字都不给播。 | 14.24s | **224.3Hz** | 194–261 | 29.2% | `376e1212bba93aa3affc0fbf34060548988995fe5590ed0af984dc4e56748bd0` |
+| attack | 同一个人，公事公办的硬，胸腔下沉，字字落地，压着说而不是喊，权威感来自不容置辩 | 这段掐掉。不是我不敢播，是你这套话经不起核。明天把材料送到台里，我当面跟你算。 | 9.76s | **216.2Hz** | 186–253 | 20.4% | `e069e45424007a7ca1c8a1c72ceea85b2fbf7c4167c250e2ad651f5bfa8a4bc4` |
+| defend | 同一个人，冷静简短，一句说完不停顿，不带情绪解释第二遍 | 安全线我来顶。白天的KPI我认，但深夜这一小时，谁也别想拿算法来替我说话。 | 10.80s | **177.8Hz** | 162–205 | 66.3% | `b43ddc2a62910cc772d1f82dc68e8d3f4ba10af151014d2f2c1390689e1a8559` |
+| break | 同一个人，连续开会五小时后的疲态，喉底微微发涩，语速放慢，但不哭腔、不失态 | 开了五个小时的会，我这嗓子也是涩的。可有些事，你不说，就没有人替你说。 | 13.28s | **190.5Hz** | 164–214 | 38.0% | `2deabc8674d4c9dd64934deb063c133a6c2a8521550d75176b195384fd159d6d` |
+| afterglow | 同一个人，收束全场，气声增多，音色温暖一点，像关灯前最后那句话 | 今天就到这里。窗外还在下雨，各位收好这份卷宗，我们三更再会。 | 7.44s | **229.7Hz** | 202–270 | 43.8% | `d9e9197113d4021afcaa2c3d3ea10ffb24113efabdbc163003d93e551f966dd4` |
+
+> `defend`/`break` 两格 F0 落带下（目标 210–235）。占比 66.3% 说明那两句偏低胸腔为主，**是否同一人须耳朵裁**（P-07），客观指标只抓接错线。
+> 仓内另存 `_AB_base.wav`（试音对照件，非资产）与 `ref_text.txt`（E1 路线遗留的 ASR 反写文本，随 E1 路线作废，留此仅备查）。
 
 ### 旧声底除名与连坐（必读）
 
 - **`01_qingyi_青衣.wav`（7.15s · `2081e0ed…5836`）**：2026-09-21 主理人判定声底不合格，**已除名**（在 Trash，未 `rm`）。**严禁再作任何 clone 参考音。**
-- **`qingyi_seed.pt`（`aeaba8af…`）/ `qingyi_ref.wav`（4.45s · `3f4679ab…` · instruct `女，青年` · ref_text“我叫青衣，青衣江的青衣。今天来给您聊聊孔子的故事。”）**：
-  该 ref **既不是**已除名的旧母带（时长 7.15s 不符），**也不是**定版 Vivian（25.04s 不符，且 Vivian 根本不经 clone）—— **父母不明，按 §README 谱系铁律 6 判作废**。
-  ⚠ 后果：引擎 `/speakers` 现在仍暴露一个名叫“青衣”的 OmniVoice 音色，**它不是本档案的青衣**。在生产中调用 `speaker: 青衣` 即构成声底污染。
+- **`qingyi_seed.pt`（`aeaba8af…`）/ `qingyi_ref.wav`（4.45s · `3f4679ab…`）**：父母不明，2026-09-21 已挪 Trash。⚠ 引擎 `/speakers` 目前仍暴露一个名叫"青衣"的 OmniVoice 音色，**它不是本档案的青衣**，调用 `speaker: 青衣` 即构成声底污染（E1 侧唯一合法用法见坑账 P-02）。
+- **E1 Clone 重铸路线（2026-09-21 夜）**：六格已按"定版母带抽 seed ➔ clone"产出并试听，主理人判"**这个声音一听阅历就不够**"，全部判废，隔离于 `voice_assets/qingyi/不合格隔离/E1clone重铸_判废20260921/`。**从此青衣不走 E1，只走 E2 Vivian。**
 - **缺产**：`qingyi_opening_poem_final.wav` / `qingyi_closing_poem_final.wav` 全库查无，§二 原记为虚记，青衣定场／散场诗至今未生产。
 
-### 重跑配方（回退律的正确走法）
+### 待办（按主理人法）
 
-定版走预置音色，**一旦 Qwen3-TTS 下线或换版，青衣无法按图重造**。补产顺序：
-1. 用定版 Vivian 母带截 10–15s 干净段作 `ref_audio` ➔ 抽新 `qingyi_seed.pt`（把预置音色转成自有 clone，这才是可重跑的资产）；
-2. clone 效果不佳 ➔ **不许在 seed 上打补丁**，回退 Voice Design 重发候选（闭词表：`女，青年/中年，中音调/高音调`）；
-3. 新声底父母听定后，六格逐格产：`base`(0.95) / `probe`(1.0) / `attack`(1.05) / `defend`(0.92) / `break`(0.85) / `afterglow`(0.80)。
+1. **今晨**：主理人试听上表六格 ➔ 通过者 pickup 入 `locked/`（命名 `qingyi_<state>.wav`，禁数字前缀），同步 `SHA256SUMS.txt`。
+2. 定场诗／散场诗用同一 `speaker=Vivian` 直出，**不引入第二条声纹**。
+3. **禁止**再为青衣抽 seed 或走 Design：预置音色的声纹即资产，环境级依赖记明权重路径与 venv 已足够（坑账 P-13）。

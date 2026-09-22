@@ -25,7 +25,7 @@ flowchart TD
 
 ### 核心约束守则：
 
-> ⚠ **上图是“能力宣称矩阵”，与本机实不符**（MiMo-TTS 本机不存在、CosyVoice 仅源码、Qwen3-TTS 与 BreezyVoice 非常驻）。
+> ⚠ **上图是“能力宣称矩阵”，与本机实不符**（`MiMo-TTS` 是厂牌叫错名——k2-fsa＝小米，实为 E1；CosyVoice 仅源码无权重；Qwen3-TTS 与 BreezyVoice 非常驻但**权重在本机**）。
 > **实产一律以 §一·B 引擎矩阵为准**；两处冲突时以 §一·B 与角色卡第 9 层为准。
 1. **情绪状态机克制**：当前神经网络声学模型（如 CosyVoice2）适宜表现**室内知识分子克制交锋**（压低、骤降、冷峻、反讽）；严禁设计超出模型声码器能力的舞台剧式嚎啕大哭或尖叫，避免引入机械塑料杂音。
 2. **在场 vs 远程物理分层**：
@@ -54,15 +54,19 @@ flowchart TD
 | # | 引擎 | 物理位置 | 运行形态 | 能力 | 硬限制（实测） | 本库已冻结母带的实际出处 |
 |:--:| :--- | :--- | :--- | :--- | :--- | :--- |
 | **E1** | **OmniVoice** | `~/Apps/kunpengzhi-audio-engine/app.py`<br>权重 `~/Projects/rescue/models/omnivoice_model`（k2-fsa/OmniVoice，base `Qwen/Qwen3-0.6B`，28 层，apache-2.0） | ✅ **常驻**：systemd `kunpengzhi-audio-engine.service` → **:9098** | 双模：**Voice Design**（`instruct` 文本捏人）／**Voice Clone**（`*_seed.pt`） | ① `instruct` 是**闭词表**（`男/女`＋年龄段＋五档音调＋耳语＋方言名），写“温和／沙哑”直接 500。<br>② **接口无 seed 入口**：`OmniVoiceGenerationConfig` 只有 `num_step=32 / guidance_scale=2.0 / t_shift=0.1 / position_temperature=5.0 …`，**没有随机种子参数**。<br>③ 推论：**同一条 instruct，两次调用＝两个不同的人**。Design 模式天生不可复用。<br>④ `instruct` 不改变输出时长，只有 `speed` 改，且亚线性。<br>⑤ 当前 `/speakers` 已载 **4 个**：`qingyi/青衣`、`emei/峨眉`、`leshan/乐山`、`zijin/紫金`（英文键＝中文键同物）。父母谱系：紫金 ✅ 明确（`zijin_ref.wav` ＝ 冻结 `base.wav`，见 `manifest.json`）；青衣／峨眉 ❌ 5 月旧件、父母不可考；乐山 ⚠ 主理人裁定与峨眉撞脸。<br>⑥ **`*_seed.pt` 固定的是"人"，不是"条"**：文件内容为 `ref_audio_tokens + ref_text + ref_rms`（参考音替身），**不是随机种子**。实测同一 speaker／同一句／同一 speed 连调两次 ⇒ 文件字节与时长**不同**（99404B/7.26s vs 100844B/7.37s），但 F0 稳（128.2Hz vs 126.0Hz，同区间）。⇒ 结论：**E1 Clone 可复现声底身份，不可复现同一 take**；因此"重跑必重听"，逐字节比对在本引擎永远不成立（详见坑账 P-12）。 | 乐山 4 条、紫金 3 条（`04_zijin_紫金` / `ryan` / `aiden`） |
-| **E2** | **Qwen3-TTS** | `~/Apps/Qwen3-TTS`（`qwen_tts` 包 + `model_local_full/`，权重齐） | ❌ **非常驻**：无 systemd、无固定端口；只在需要时经 `~/.hermes/plugins/qwen3tts-server/`（`server.py`、`swap-to-tts.sh` 与 vllm **抢卡换起**）临时拉起 | 预置播音音色（`Vivian`／`Serena`）、京腔中英混流（`Dylan`）；三套 API：`generate_custom_voice` / `generate_voice_design` / `generate_voice_clone` + `create_voice_clone_prompt` | ✅ **本库唯一真正"有种子"的引擎**：`create_voice_clone_prompt()` 返回 dataclass **`VoiceClonePromptItem(ref_code, ref_spk_embedding, x_vector_only_mode, icl_mode, ref_text)`**，其中 `ref_code`＝声码 token、`ref_spk_embedding`＝说话人向量，**可 `torch.save` 存盘**，之后直接以 `voice_clone_prompt=` 传给 `generate_voice_clone()`，**不再需要参考音**＝声纹被永久固定，换机换时也能重跑。<br>⚠ 但它**无常驻服务**，且**已冻结的那批母带用的是预置音色（Vivian/Dylan），不走我方 prompt** ⇒ 存量件仍标"不可原样重跑"（P-08），要复现必须先把它转成我方 prompt 存盘（见铁律 2 待办）。 | 青衣 `qingyi_vivian_v2_cultural_anchor.wav`、渔阳 `yuyang_qwen3_dylan.wav` + `yuyang_mixed_01..03` |
+| **E2** | **Qwen3-TTS** | `~/Apps/Qwen3-TTS`（`qwen_tts` 包 + `model_local_full/`＝0.6B **base，无预置音色**）<br>**`~/Projects/rescue/models/qwen3-customvoice`**＝1.7B **CustomVoice，九大预置音色在此** | ❌ **非常驻**：无 systemd、无固定端口；只在需要时经 `~/.hermes/plugins/qwen3tts-server/`（`server.py`、`swap-to-tts.sh` 与 vllm **抢卡换起**）临时拉起 | 预置播音音色（`Vivian`／`Serena`）、京腔中英混流（`Dylan`）；三套 API：`generate_custom_voice` / `generate_voice_design` / `generate_voice_clone` + `create_voice_clone_prompt` | ✅ **本库唯一真正"有种子"的引擎**：`create_voice_clone_prompt()` 返回 dataclass **`VoiceClonePromptItem(ref_code, ref_spk_embedding, x_vector_only_mode, icl_mode, ref_text)`**，其中 `ref_code`＝声码 token、`ref_spk_embedding`＝说话人向量，**可 `torch.save` 存盘**，之后直接以 `voice_clone_prompt=` 传给 `generate_voice_clone()`，**不再需要参考音**＝声纹被永久固定，换机换时也能重跑。<br>⚠ **纠正（2026-09-22，见坑账 P-13）**：本行旧版写"预置音色不走我方 prompt ⇒ 存量件不可原样重跑"，**判错了层次**。实地核查：本机 `~/Projects/rescue/models/qwen3-customvoice`（1.7B-CustomVoice）权重齐全，`spk_id` = `serena/vivian/uncle_fu/ryan/aiden/ono_anna/sohee/eric/dylan`，`spk_is_dialect` 标 `dylan=beijing_dialect, eric=sichuan_dialect` ⇒ **预置音色的声纹焊死在权重里，本机可原样重跑**，缺的只是一个常驻服务（跑法：`~/Apps/Qwen3-TTS/.venv/bin/python` ＋ transformers 4.57.3，`scripts/audition.py` E2 分支）。⚠ 但 **take 级仍不可重跑**（同 E1，见 P-12）：同参数两次调用出的不是同一条演奏。 | 青衣 `qingyi_vivian_v2_cultural_anchor.wav` ＋ `qingyi/<state>` 六格（待听定）；渔阳 **`yuyang_d4_<state>` 六格（d4 定版）**；`yuyang_mixed_01..03` / `yuyang_qwen3_dylan` 四件已判薄作废 |
 | **E3** | **BreezyVoice** | `~/Apps/BreezyVoice`（内嵌 `cosyvoice` 子包） | ❌ 无常驻服务，`.venv` 手动拉起 | 联发科台湾繁中 G2PW，中／英／日／韩 Code-Switch | 只在实验场产出，**零冻结母带** | —（竹湖候选全在 `character_samples/`） |
 | **E4** | **CosyVoice2** | `~/Projects/github/CosyVoice` | ❌ **仅源码在库，未见权重与服务** | 档案宣称：Zero-Shot 跨情绪克隆、川普 0.75 档 | **本机上从未证实可用**；峨眉档案 `pipeline` 写它，但 `02_emei_峨眉.wav` 的真实出处**不可考** | 存疑，待主理人裁定 |
-| **E5** | **MiMo-TTS** | **本机未找到** | ❌ 不存在 | 档案宣称：四川方言 1.0 档 | **纯属档案虚记**：乐山冻结件实测出自 E1 OmniVoice（`leshan_ref.wav` 与 `leshan_chuanpu_03_共祖.wav` 字节相同） | 无 |
+| **E5** | **MiMo-TTS** | **本机无此服务名** | ❌ 不存在此名 | 档案宣称：四川方言 1.0 档 | **改判（2026-09-22）：不是无中生有，是厂牌叫错了名字。** OmniVoice 出自 **k2-fsa＝小米 AI Lab**（Povey 团队），主理人口头一贯称"小米的模型"；`MiMo-TTS` 是把厂牌名当成了引擎名。乐山冻结件实测出自 **E1 OmniVoice**（`leshan_ref.wav` 与 `leshan_chuanpu_03_共祖.wav` 字节相同）⇒ 虚记的是**名字**，不是引擎。**今后档案一律写 E1，禁止再出现 `MiMo-TTS`。** | 无（其"产出"即 E1 的产出） |
 
 ### 由矩阵导出的三条铁律
 
 1. **一人一引擎一格**：第 9 层「生成谱系」的 `engine` 字段只能填 **E1–E5 编号**，并写明该引擎当下的运行形态；填“OmniVoice 系”这种模糊话视为空项。
-2. **不可重跑的资产必须挂牌**：凡出自 **E2/E3/E4**（无常驻服务）的冻结母带，档案与 `locked/README.md` 必须标 **⚠ 不可原样重跑**，并优先安排“转 E1 Clone”补验（例：用 `qingyi_vivian_v2` 抽 `qingyi_seed.pt`）。
+2. **可复现性分三级判，禁止一句"不可重跑"糊过去**（2026-09-22 改判，原铁律 2 作废）：
+   - **声纹级**——有没有固定的"人"：E1 看 `*_seed.pt`＋`/speakers` 在表；E2 看 `spk_id`（预置音色焊死在权重里，**本机即可重跑**）或 `voice_clone_prompt` 存盘。
+   - **take 级**——能不能重出**同一条**：只有冻结文件的 SHA-256 能保证；**E1/E2 皆无随机种子入口 ⇒ take 级一律不可重跑**（坑账 P-12），有 seed 也必"重跑必重听"。
+   - **环境级**——换机换时能不能复起：必须写全**权重路径 ＋ venv/解释器 ＋ 服务形态**（E2 只用 `~/Apps/Qwen3-TTS/.venv/bin/python`，transformers 4.57.3）。
+   三级里断了哪一级，档案就只准挂哪一级的牌；**"没有常驻服务"不等于"不可重跑"**（P-13）。凡 take 级断裂的资产，`locked/SHA256SUMS.txt` 即其唯一身份。
 3. **Design 只准用于选型，不准用于生产**：因 **E1 无 seed**，Voice Design 的输出天生一次一换；任何“六格基线”若由连续 6 次 Design 拼成，**必然不是同一个人**（2026-09-21 紫金首产即犯此错：base 合格、其余 5 格被判成另外五个人）。生产唯一合法路径是：**Design 选出声底父母 → 抽 seed → Clone 出六格**。
 
 ---
@@ -78,18 +82,18 @@ flowchart TD
 | **01** | `VOICE_01` | [青衣](./01_青衣_Qingyi__VOICE01.md) | **秦雍琼** | `qingyi_vivian_v2_cultural_anchor.wav` | 210-235Hz | 央视级李梓萌标准国语 / 清澈端庄 | Direct Clean | **🔒 已锁死 (Locked)** |
 | **03** | `VOICE_02` | [峨眉](./03_峨眉_Emei__VOICE02.md) | **梅心易** | `02_emei_峨眉.wav` | 135-155Hz | 椒盐川普 (0.75 档) / 散打评书底色 | Direct Clean | **🔒 已锁死 (Locked)** |
 | **04** | `VOICE_03` | [乐山](./04_乐山_Leshan__VOICE03.md) | **游牧仁** | `03_leshan_乐山.wav` | 125-145Hz | 地道四川话 (1.0 档 ➔ 讲课降档) | Direct Clean | **🔒 已锁死 (Locked)** |
-| **05** | `VOICE_04` | [渔阳](./05_渔阳_Yuyang__VOICE04.md) | **于鲜洋** | `05_yuyang_渔阳.wav` | 130-150Hz | 老北京京片子儿化音 / 华尔街中英混流 | Feishu DSP | **🔒 已锁死 (Locked)** |
+| **05** | `VOICE_04` | [渔阳](./05_渔阳_Yuyang__VOICE04.md) | **于鲜洋** | **`yuyang_d4_base.wav`**（六格 `yuyang_d4_<state>.wav`；旧 `05_yuyang_渔阳.wav` 判薄作废） | 125-150Hz（d4 加厚后实测带） | 老北京京片子儿化音 / 华尔街中英混流（同句混说，禁单出英文） | Feishu DSP | **🔒 已锁死 (Locked)** |
 | **07** | `VOICE_05` | [紫金](./07_紫金_Zijin__VOICE05.md) | **王佑德** | `04_zijin_紫金.wav` | 130-145Hz | 李永乐式大黑板推导慢语速 / 咬字如切金 | Feishu DSP | **🔒 已锁死 (Locked)** |
 
 **五人定版母带的真实出声引擎（对照 §一·B 矩阵，档案原 `pipeline` 字段有虚记）：**
 
 | 席位 | 档案 `pipeline` 原写 | **实测/可复核的真实出处** | 可重跑性 |
 |:---:| :--- | :--- | :--- |
-| 01 青衣 | OmniVoice Seed + Qwen3-TTS (Vivian) | 冻结件出自 **E2 Qwen3-TTS `Vivian`**；E1 那颗 `qingyi_seed.pt` 父母不明、与定版无关 | ⚠ **不可原样重跑**（E2 非常驻、无我方 seed） |
-| 03 峨眉 | CosyVoice2 (川普0.75档) | **不可考**：E4 本机仅有源码；E1 的 `emei_seed.pt` instruct 与本角色设定两格全违 | ⚠ 出处断线 |
-| 04 乐山 | MiMo-TTS (川话1.0档➔降档) | **E5 本机不存在，纯虚记**；冻结件与 clone 实测全部出自 **E1 OmniVoice** | ✅ 唯一可原样重跑（但声底已判与峨眉撞脸） |
-| 05 渔阳 | Qwen3-TTS (Dylan 京普混流) | 冻结件出自 **E2 Qwen3-TTS**；E1 侧无 `yuyang` 种子 | ⚠ **不可原样重跑** |
-| 07 紫金 | OmniVoice + 慢速推导 | **E1 OmniVoice Voice Design**；无 seed、无 clone | ⚠ 同 instruct 重抽即换人 |
+| 01 青衣 | OmniVoice Seed + Qwen3-TTS (Vivian) | 冻结件出自 **E2 Qwen3-TTS `Vivian`**；E1 那颗 `qingyi_seed.pt` 父母不明、与定版无关（2026-09-21 已挪 Trash） | ✅ 声纹级可重跑（`spk_id=vivian`）／⚠ take 级不可（P-12） |
+| 03 峨眉 | CosyVoice2 (川普0.75档) | **不可考**：E4 本机仅有源码；E1 的 `emei_seed.pt` instruct 与本角色设定两格全违 | ❌ 三级全断：出处断线 ⇒ 真"不可原样重跑" |
+| 04 乐山 | ~~MiMo-TTS~~ (川话1.0档➔降档) | **`MiMo-TTS` 是厂牌叫错名**（k2-fsa＝小米，主理人俗称"小米模型"）；冻结件与 clone 实测全部出自 **E1 OmniVoice** | ✅ 声纹级可（`leshan_seed.pt` 在 `/speakers`）／⚠ take 级不可；**声底已判与峨眉撞脸**，只挂牌不反查 |
+| 05 渔阳 | Qwen3-TTS (Dylan 京普混流) | **E2 `spk_id=dylan`（beijing_dialect）＋ DSP d4 加厚层**；E1 侧 `yuyang_seed.pt` 已作废挪 Trash，`/speakers` 无"渔阳" | ✅ **三级全可**：`spk_id` ＋ 六格 instruct/台词逐字入档 ＋ `post_dsp.af` 逐字入档 ＋ 六格 SHA 登记（唯 take 级仍靠冻结文件） |
+| 07 紫金 | OmniVoice + 慢速推导 | 现由 **E1 OmniVoice Voice Clone** 出六格（`zijin_seed.pt`，父母＝`base.wav`，SHA 入 manifest）；早期 Design 候选已判废 | ✅ 声纹级可／⚠ take 级不可（P-12）；六格**待终审 pickup** |
 
 ---
 
