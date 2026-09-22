@@ -97,7 +97,7 @@ transmission_channel: "Feishu DSP (MCU)"
 ## 声底件（2026-09-22 夜 · 六格制度废止，坑账 P-16）
 
 > **本席现行产出物＝一条声底件**：`~/Music/voice_assets/zijin/base.wav`。六格（base/probe/attack/defend/break/afterglow）**不再是默认产出**——无 seed 通道撑不起"一人六态"（P-14），情绪差改由总装层（台词＋speed＋DSP）承担。
-> 配方单一来源：`multipipeline-audio-render/characters/zijin.json` ＋《五卷人物资产总册》声纹人设 表A/表B。
+> 配方单一来源：`multipipeline-audio-render/characters/zijin.json` ＋《五卷人物资产总册》声纹人设 **表A（2026-08-30）**。（本档旧版引用的「表B」不存在，系我自造，坑账 P-19。）
 
 | 字段 | 值 | 可复核性 |
 | :--- | :--- | :---: |
@@ -105,11 +105,11 @@ transmission_channel: "Feishu DSP (MCU)"
 | engine／mode | **OmniVoice（E1）／Voice Clone** | ✅ |
 | instruct（逐字） | 男，中年，极低音调 | ✅ |
 | speed | 0.9 | ✅ |
-| 探针台词（全员同句） | 大家看黑板。我们把这个星系退回到九千八百年前，它当时离开我们的速度，是一百四十二点六公里每秒。 | ✅ |
+| 台词（本席定稿句·逐字） | 大家看黑板。我们把这个星系退回到九千八百年前，它当时离开我们的速度，是一百四十二点六公里每秒。 | ✅ |
 | 传输链路 | 远程位 —— 飞书 MCU 窄带链（300/3200Hz 截断＋粉红噪底＋50Hz 嗡鸣）。⚠ 本声底件是**干音**：传输 DSP 在总装层挂，不进声底层（否则母带被 DSP 焊死，换链路就得重抽声底）。 | ✅ |
 | post_dsp | 无（干音直出） |
 | 实测 | 9.80s ／ F0 中位 **130.4Hz** ／ IQR 104–167Hz ／ <250Hz 占比 22.0% | ✅ |
-| F0 目标带（表B） | 130–145Hz ➔ ✅ 落带内 | ✅ |
+| F0 目标带 | **不存在**（原「表B」F0 列系我自造、无《五卷》出处，P-19 已作废；F0 中位测的是本句说调不是声底，P-20 取消达标判定） | ✅ |
 | SHA-256 | `c7c309980a3769a9e187c0c90a86b00ac396a4894bf08e7f5830e962ab55791c` | ✅ |
 | 可复现性 | ✅ 声纹级可（E1 seed 在引擎 `/speakers`）／❌ take 级不可（P-12） | ✅ |
 | 状态 | 待主理人耳朵终审；通过者抽 seed／固化 prompt 后才谈 `locked/` | ✅ |
@@ -136,5 +136,5 @@ transmission_channel: "Feishu DSP (MCU)"
 
 1. 耳朵终审本件 ➔ 通过即抽 seed（E1 `scripts/make_seed.py`）或固化 `voice_clone_prompt`（E2）。
 2. 通过件 pickup 入 `locked/`，命名 `zijin_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
-3. 改判必回写《五卷》表A/表B 与本卡 `genealogy_note`，不许只改音不改档。
+3. 改判必回写《五卷》表A 与本卡 `genealogy_note`，不许只改音不改档。
 <!-- END:VOICEFLOOR-2026-09-22 -->

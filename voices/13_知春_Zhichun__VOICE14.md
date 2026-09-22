@@ -4,9 +4,9 @@ voice_asset_id: "VOICE_14"
 codename: "知春"
 legal_name: "丛中笑"
 status: "voice_floor_pending_audition"
-physical_master: "file:///home/ben/Music/voice_assets/zhichun/base.wav"
-f0_target: "Pending（表B 本席 F0 列空缺）"
-pipeline: "E1 OmniVoice · Voice Design · 男·中年·河南话·中音调 · speed 1.05（无 seed ⇒ 不可同人重跑，P-01/P-16）"
+physical_master: "候选件，未定版：file:///home/ben/Music/san_geng_dao_chang_audition/天津_E4知春_20260922/13_知春_E4天津_take01.wav"
+f0_target: "不设目标带（P-19 自造作废＋P-20 说调非声底）"
+pipeline: "E4 CosyVoice2 · zero-shot Voice Clone · 天津话全量句 · speed 1.0 · 声底父母＝本席 E1 声底件冻结副本 f6cd66bc（跑在钉版 transformers 4.51.3 隔离层上，P-21）"
 transmission_channel: "Direct Clean"
 ---
 
@@ -36,30 +36,33 @@ transmission_channel: "Direct Clean"
 ## 声底件（2026-09-22 夜 · 六格制度废止，坑账 P-16）
 
 > **本席现行产出物＝一条声底件**：`~/Music/voice_assets/zhichun/base.wav`。六格（base/probe/attack/defend/break/afterglow）**不再是默认产出**——无 seed 通道撑不起"一人六态"（P-14），情绪差改由总装层（台词＋speed＋DSP）承担。
-> 配方单一来源：`multipipeline-audio-render/characters/zhichun.json` ＋《五卷人物资产总册》声纹人设 表A/表B。
+> 配方单一来源：`multipipeline-audio-render/characters/zhichun.json` ＋《五卷人物资产总册》声纹人设 **表A（2026-08-30）**。（本档旧版引用过「表B」——该表不存在，是我自造，坑账 P-19。）
 
 | 字段 | 值 | 可复核性 |
 | :--- | :--- | :---: |
 | 席位·花名 | **13 知春**（丛中笑（法定真名 · 原字节架构师/计算所特聘 · 43岁）） | ✅ |
-| engine／mode | **OmniVoice（E1）／Voice Design** | ✅ |
-| instruct（逐字） | 男，中年，河南话，中音调 | ✅ |
-| speed | 1.05 | ✅ |
-| 探针台词（全员同句） | 这笔账我核了三十年。没有出处的话，我一个字都不给播。 | ✅ |
+| engine／mode | **CosyVoice2（E4）／zero-shot Voice Clone**（表A `L203` 本席引擎栏逐字作 `CosyVoice-v2:zh-bj-coder-dry`，E1 闭词表无京/津档 ⇒ 本席本来就该走 E4） | ✅ |
+| instruct（逐字） | `You are a helpful assistant. 请用天津话表达。<|endofprompt|>`（E4 官方 17 项闭词表全量句，一字未改） | ✅ |
+| speed | 1.0 | ✅ |
+| 声底父母 `prompt_wav` | 本席 2026-09-22 E1 声底件**冻结副本** `~/Projects/rescue/seeds/e4_prompts/zhichun_e1_中年中音调_20260922_f6cd66bc.wav`（10.40s／F0 189／低频 11.7%）——E4 本机快照无 `spk2info.pt` ⇒ 无预置音色可拼，辨识度全押这条参考音 | ✅ |
+| 台词 | 《五卷》**L346 名台词逐字原文**（P-18）；其中 `$(-1, 0, +1)$` 为平衡三进制数位记号，进引擎由驱动器读作「负一、零、正一」，**卡内原文未动** | ✅ |
 | 传输链路 | 在场位 —— 近场电容麦，干净无损通道，不挂传输 DSP。 | ✅ |
-| post_dsp | 无（干音直出） |
-| 实测 | 4.96s ／ F0 中位 **189.0Hz** ／ IQR 154–229Hz ／ <250Hz 占比 7.9% | ✅ |
-| F0 目标带（表B） | 未标定（表B F0 列空缺） | ✅ |
-| SHA-256 | `412755d1b4508bb5a6c36bdee3bedb63008af08546e647f5ec1bd8cf892e6fa6` | ✅ |
-| 可复现性 | ❌ 声纹级不可（Design 无 seed，P-01）／❌ take 级不可／✅ 环境级（systemd 常驻 :9098） | ✅ |
-| 状态 | 待主理人耳朵终审；通过者抽 seed／固化 prompt 后才谈 `locked/` | ✅ |
+| post_dsp | 无（干音直出）；⚠ 本件比声底父母更尖更薄（低频 4.8% vs 11.7%），要不要按一·C 节走 DSP 层压厚度，**待耳朵定，未自行施加** | ⏸ |
+| 实测 | 两条候选各 **21.08s**、F0 中位 230.8Hz（说调记录，非达标判据）、低频占比 4.8%；ASR 正字完整无复读 | ✅ |
+| F0 目标带 | **不存在**——原「表B F0 列」系我自造、无《五卷》出处（P-19 已作废）；且 F0 中位测的是句子说调不是声底，取消达标判定（P-20） | ✅ |
+| SHA-256（前 8） | 候选 `e2360eac`／`f9c6d693`（`~/Music/san_geng_dao_chang_audition/天津_E4知春_20260922/`，试听清单同目录）；声底父母 `f6cd66bc` | ✅ |
+| 可复现性 | ✅ 环境级（权重＋钉版隔离层可复装，见 P-21）／✅ 声纹级（音色锁定在冻结的 `prompt_wav` 上，不再自克隆）／❌ take 级（LLM 采样，同参连抽即两人，本表两条 SHA 不同为证） | ✅ |
+| 状态 | 🟡 **E4 天津重出件·待主理人耳朵终审**——首出两件为机器废件（各 41.24s 复读失控，根因 transformers 5.x，见 P-21），已判废入隔离；耳朵通过后再谈抽 prompt／`locked/` | ✅ |
 
 **判废与改判留痕**（`不合格隔离/`，禁 `rm`）：
 
 - `单方言无音调_20260922/` —— 判废原因：instruct 只女方言、未叠音调档，违反《五卷》声纹人设表 E1 硬门（须 音调＋方言 双件，否则 F0 不可控·坑账 P-05）。改判时间 2026-09-22，非 rm，留此备查。
+- `zhichun/不合格隔离/`（听音仓）—— E4 天津**首出两件**（各 41.24s，反写「我我我…」/「请不吝点赞订阅…」）。判废原因：**机器废件非审美废件**——E3/E4 共用 venv 的 `transformers 5.17.0` 让 CosyVoice2 解码静默退化（0 退出码、无警告），仓库钉的 4.51.3 才正常；已建钉版隔离层 `~/Apps/CosyVoice2-overlay` 并在适配器加硬版本闸（坑账 **P-21**）。SHA `3032dff5…`／`1027ac13…` 记在 `判废原因.txt`，重出件另名入库。
 
 **待办（按主理人法）**
 
-1. 耳朵终审本件 ➔ 通过即抽 seed（E1 `scripts/make_seed.py`）或固化 `voice_clone_prompt`（E2）。
-2. 通过件 pickup 入 `locked/`，命名 `zhichun_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
-3. 改判必回写《五卷》表A/表B 与本卡 `genealogy_note`，不许只改音不改档。
+1. 耳朵终审本件 ➔ 通过即固化声底父母（E4 走**冻结 `prompt_wav` 副本**这条路，Design 抽 seed 对 E4 无效）；⚠ `prompt_wav` 永不得指回 `voice_assets/zhichun/base.wav`，那是本驱动器要写的产出位（自己克隆自己）。
+2. 待裁：要不要改用**真实天津录音**当声底父母——机器造不出「天津味儿」的嗓子，E4 的辨识度全在那条参考音上。
+3. 通过件 pickup 入 `locked/`，命名 `zhichun_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
+4. 改判必回写《五卷》表A 与本卡 `genealogy_note`，不许只改音不改档。
 <!-- END:VOICEFLOOR-2026-09-22 -->

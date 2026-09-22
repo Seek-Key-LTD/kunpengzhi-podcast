@@ -132,7 +132,7 @@ transmission_channel: "Direct Clean"
 
 **逐格 `instruct`**（自然语言，只管情绪/节奏；主理人实测 E2 **不听年龄指令**，见坑账 §一·C）
 
-| 格 | instruct | 台词 | 时长 | F0 中位 | IQR | <250Hz 占比 | SHA-256 |
+| 格 | instruct | 台词 | 时长 | F0 中位 | IQR | <250Hz 占比 | SHA-256 | `bbfd0a2a7be5a9d6b5cba5f7a783039e627a1de4bb4690e66a105eeece2dfb65` | ✅ |
 | :--- | :--- | :--- | ---: | ---: | :--- | ---: | :--- |
 | base | 四十多岁的女性副台长，央视级字正腔圆标准普通话，端庄沉稳，中高频明亮但不尖，吐字干净有控制力，带着长期主持大局的阅历感 | 各位师傅、朋友，这里是FM九九点八。今晚三更开卷，我们把该审的账，摊在桌面上看。 | 10.56s | **212.4Hz** | 178–231 | 25.2% | `3f065e72fc9f68c66dfde338e40203d57612db7dc4393263724c7e6c00d33761` |
 | probe | 同一个人，语气转为不动声色的试探，尾音略收，咬字放慢半拍，不抬高音量 | 你这句话，出处在哪儿？我做了三十年编辑，没有出处的引号，我一个字都不给播。 | 14.24s | **224.3Hz** | 194–261 | 29.2% | `376e1212bba93aa3affc0fbf34060548988995fe5590ed0af984dc4e56748bd0` |
@@ -167,7 +167,7 @@ transmission_channel: "Direct Clean"
 ## 声底件（2026-09-22 夜 · 六格制度废止，坑账 P-16）
 
 > **本席现行产出物＝一条声底件**：`~/Music/voice_assets/qingyi/base.wav`。六格（base/probe/attack/defend/break/afterglow）**不再是默认产出**——无 seed 通道撑不起"一人六态"（P-14），情绪差改由总装层（台词＋speed＋DSP）承担。
-> 配方单一来源：`multipipeline-audio-render/characters/qingyi.json` ＋《五卷人物资产总册》声纹人设 表A/表B。
+> 配方单一来源：`multipipeline-audio-render/characters/qingyi.json` ＋《五卷人物资产总册》声纹人设 **表A（2026-08-30）**。（本档旧版引用的「表B」不存在，系我自造，坑账 P-19。）
 
 | 字段 | 值 | 可复核性 |
 | :--- | :--- | :---: |
@@ -175,11 +175,11 @@ transmission_channel: "Direct Clean"
 | engine／mode | **Qwen3-TTS（E2）／Voice Clone** | ✅ |
 | instruct（逐字） | —（E2 Voice Clone 不接收 instruct；声纹由 `~/Projects/rescue/seeds/e2_prompts/qingyi_vivian_xvec.pt` 锁） | ✅ |
 | speed | E2 无 speed 入口 | ✅ |
-| 探针台词（全员同句） | 这笔账我核了三十年。没有出处的话，我一个字都不给播。 | ✅ |
+| 台词（本席定稿句·逐字） | 各位师傅、朋友，这里是FM九九点八。今晚三更开卷，我们把该审的账，摊在桌面上看。 | ✅ |
 | 传输链路 | 在场位 —— 近场电容麦，干净无损通道，不挂传输 DSP。 | ✅ |
 | post_dsp | 无（干音直出） |
 | 实测 | 10.08s ／ F0 中位 **212.4Hz** ／ IQR 175–264Hz ／ <250Hz 占比 5.5% | ✅ |
-| F0 目标带（表B） | 210–235Hz ➔ ✅ 落带内 | ✅ |
+| F0 目标带 | **不存在**（原「表B」F0 列系我自造、无《五卷》出处，P-19 已作废；F0 中位测的是本句说调不是声底，P-20 取消达标判定） | ✅ |
 | SHA-256 | `bbfd0a2a7be5a9d6b5cba5f7a783039e627a1de4bb4690e66a105eeece2dfb65` | ✅ |
 | 可复现性 | ⚠ 取决于 prompt 是否在档：`~/Projects/rescue/seeds/e2_prompts/qingyi_vivian_xvec.pt` | ✅ |
 | 状态 | 2026-09-22 改判：E2 Custom Voice 六连抽整体作废，六件挪 voice_assets/qingyi/不合格隔离/E2_CustomVoice六连抽_判六人_20260922/；改 mode=Voice Clone（base 权重 + x-vector prompt）重产六格。F0/低频占比只是辅助，身份度用 audition.py --identify 声纹余弦矩阵坐实，终审仍是耳朵。；通过者抽 seed／固化 prompt 后才谈 `locked/` | ✅ |
@@ -193,5 +193,5 @@ transmission_channel: "Direct Clean"
 
 1. 耳朵终审本件 ➔ 通过即抽 seed（E1 `scripts/make_seed.py`）或固化 `voice_clone_prompt`（E2）。
 2. 通过件 pickup 入 `locked/`，命名 `qingyi_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
-3. 改判必回写《五卷》表A/表B 与本卡 `genealogy_note`，不许只改音不改档。
+3. 改判必回写《五卷》表A 与本卡 `genealogy_note`，不许只改音不改档。
 <!-- END:VOICEFLOOR-2026-09-22 -->

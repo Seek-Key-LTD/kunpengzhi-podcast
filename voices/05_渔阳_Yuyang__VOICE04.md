@@ -124,7 +124,7 @@ asetrate=24000*0.86,aresample=24000,atempo=1.1627906976744185,bass=g=8:f=170,equ
 ## 声底件（2026-09-22 夜 · 六格制度废止，坑账 P-16）
 
 > **本席现行产出物＝一条声底件**：`~/Music/voice_assets/yuyang/base.wav`。六格（base/probe/attack/defend/break/afterglow）**不再是默认产出**——无 seed 通道撑不起"一人六态"（P-14），情绪差改由总装层（台词＋speed＋DSP）承担。
-> 配方单一来源：`multipipeline-audio-render/characters/yuyang.json` ＋《五卷人物资产总册》声纹人设 表A/表B。
+> 配方单一来源：`multipipeline-audio-render/characters/yuyang.json` ＋《五卷人物资产总册》声纹人设 **表A（2026-08-30）**。（本档旧版引用的「表B」不存在，系我自造，坑账 P-19。）
 
 | 字段 | 值 | 可复核性 |
 | :--- | :--- | :---: |
@@ -132,11 +132,11 @@ asetrate=24000*0.86,aresample=24000,atempo=1.1627906976744185,bass=g=8:f=170,equ
 | engine／mode | **Qwen3-TTS（E2）／Custom Voice** | ✅ |
 | instruct（逐字） | — | ✅ |
 | speed | E2 无 speed 入口 | ✅ |
-| 探针台词（全员同句） | 我跟您这么说，这钱搁在华尔街叫流动性，搁在我们这儿，就叫还没到账。 | ✅ |
+| 台词（本席定稿句·逐字） | Board 上那帮人跟我讲的不是 numbers，是 story。可我要的是 balance sheet，不是 bedtime story。 | ✅ |
 | 传输链路 | 远程位 —— 飞书 MCU 窄带链（300/3200Hz 截断＋粉红噪底＋50Hz 嗡鸣）。⚠ **本席例外**：`post_dsp` 的 d4 加厚链已**焊进** locked 六格母带（音高下移＋低频抬升，非传输链），故本席冻结件不是干音；换链路不必重抽声底，但改 d4 参数等于换母带 —— 须按除名三件套走。 | ✅ |
 | post_dsp | `asetrate=24000*0.86,aresample=24000,atempo=1.1627906976744185,bass=g=8:f=170,equalizer=f=320:t=q:w=1:g=2` | ✅ |
 | 实测 | 6.97s ／ F0 中位 **128.3Hz** ／ IQR 91–168Hz ／ <250Hz 占比 12.3% | ✅ |
-| F0 目标带（表B） | 125–150Hz ➔ ✅ 落带内 | ✅ |
+| F0 目标带 | **不存在**（原「表B」F0 列系我自造、无《五卷》出处，P-19 已作废；F0 中位测的是本句说调不是声底，P-20 取消达标判定） | ✅ |
 | SHA-256 | `6098fc034f1858edaa4c64be9c517ffbfa287421765b2ca5f6ff38fa127c98d6` | ✅ |
 | 可复现性 | ❌ 不可（Voice Design 无 seed／无 prompt 入口，同参数重跑必换脸，P-01/P-13） | ✅ |
 | 状态 | 2026-09-22 主理人圈定 d4 六格，已 pickup 至 voice_assets/locked/yuyang_d4_<state>.wav；六格 SHA 见 voices/05_渔阳_Yuyang__VOICE04.md §三。；通过者抽 seed／固化 prompt 后才谈 `locked/` | ✅ |
@@ -151,5 +151,5 @@ asetrate=24000*0.86,aresample=24000,atempo=1.1627906976744185,bass=g=8:f=170,equ
 
 1. 耳朵终审本件 ➔ 通过即抽 seed（E1 `scripts/make_seed.py`）或固化 `voice_clone_prompt`（E2）。
 2. 通过件 pickup 入 `locked/`，命名 `yuyang_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
-3. 改判必回写《五卷》表A/表B 与本卡 `genealogy_note`，不许只改音不改档。
+3. 改判必回写《五卷》表A 与本卡 `genealogy_note`，不许只改音不改档。
 <!-- END:VOICEFLOOR-2026-09-22 -->

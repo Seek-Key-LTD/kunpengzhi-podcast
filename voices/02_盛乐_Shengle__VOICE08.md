@@ -5,7 +5,7 @@ codename: "盛乐"
 legal_name: "孛儿只斤·敖日其楞"
 status: "voice_floor_pending_audition"
 physical_master: "file:///home/ben/Music/voice_assets/shengle/base.wav"
-f0_target: "140Hz-160Hz（《五卷》表B）"
+f0_target: "不设目标带（P-19 自造·作废；P-20 说调≠声底）"
 pipeline: "E1 OmniVoice · Voice Design · 男·中年·中音调 · speed 0.95（无 seed ⇒ 不可同人重跑，P-01/P-16）"
 transmission_channel: "Direct Clean"
 ---
@@ -40,7 +40,7 @@ transmission_channel: "Direct Clean"
 ## 声底件（2026-09-22 夜 · 六格制度废止，坑账 P-16）
 
 > **本席现行产出物＝一条声底件**：`~/Music/voice_assets/shengle/base.wav`。六格（base/probe/attack/defend/break/afterglow）**不再是默认产出**——无 seed 通道撑不起"一人六态"（P-14），情绪差改由总装层（台词＋speed＋DSP）承担。
-> 配方单一来源：`multipipeline-audio-render/characters/shengle.json` ＋《五卷人物资产总册》声纹人设 表A/表B。
+> 配方单一来源：`multipipeline-audio-render/characters/shengle.json` ＋《五卷人物资产总册》声纹人设 **表A（2026-08-30）**。（本档旧版引用的「表B」不存在，系我自造，坑账 P-19。）
 
 | 字段 | 值 | 可复核性 |
 | :--- | :--- | :---: |
@@ -48,12 +48,12 @@ transmission_channel: "Direct Clean"
 | engine／mode | **OmniVoice（E1）／Voice Design** | ✅ |
 | instruct（逐字） | 男，中年，中音调 | ✅ |
 | speed | 0.95 | ✅ |
-| 探针台词（全员同句） | 这笔账我核了三十年。没有出处的话，我一个字都不给播。 | ✅ |
+| 台词（本席《五卷》原文金句·逐字） | 八种死文字，每一门刻在石头上的，都是王朝暴亡后的死人账目。 | ✅ |
 | 传输链路 | 在场位 —— 近场电容麦，干净无损通道，不挂传输 DSP。 | ✅ |
 | post_dsp | 无（干音直出） |
-| 实测 | 5.06s ／ F0 中位 **140.8Hz** ／ IQR 110–213Hz ／ <250Hz 占比 2.7% | ✅ |
-| F0 目标带（表B） | 140–160Hz ➔ ✅ 落带内 | ✅ |
-| SHA-256 | `a23787ea82d372343118125e2c108b7bd07f9b8f6c137712e97865afceeefba8` | ✅ |
+| 实测 | 6.12s ／ F0 中位 **200.0Hz** ／ IQR 152–240Hz ／ <250Hz 占比 8.6% | ✅ |
+| F0 目标带 | **不存在**（原「表B」F0 列系我自造、无《五卷》出处，P-19 已作废；F0 中位测的是本句说调不是声底，P-20 取消达标判定） | ✅ |
+| SHA-256 | `13f6056d3a54147ee44aedb54d93a102088e8740b47a3c08c1ed7405859c9031` | ✅ |
 | 可复现性 | ❌ 声纹级不可（Design 无 seed，P-01）／❌ take 级不可／✅ 环境级（systemd 常驻 :9098） | ✅ |
 | 状态 | 待主理人耳朵终审；通过者抽 seed／固化 prompt 后才谈 `locked/` | ✅ |
 
@@ -65,5 +65,5 @@ transmission_channel: "Direct Clean"
 
 1. 耳朵终审本件 ➔ 通过即抽 seed（E1 `scripts/make_seed.py`）或固化 `voice_clone_prompt`（E2）。
 2. 通过件 pickup 入 `locked/`，命名 `shengle_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
-3. 改判必回写《五卷》表A/表B 与本卡 `genealogy_note`，不许只改音不改档。
+3. 改判必回写《五卷》表A 与本卡 `genealogy_note`，不许只改音不改档。
 <!-- END:VOICEFLOOR-2026-09-22 -->
