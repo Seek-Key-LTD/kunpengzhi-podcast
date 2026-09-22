@@ -3,10 +3,10 @@ cast_order: 13
 voice_asset_id: "VOICE_14"
 codename: "知春"
 legal_name: "丛中笑"
-status: "blueprint"
-physical_master: "None (Queued)"
-f0_target: "125Hz-142Hz"
-pipeline: "OmniVoice (天津曲艺腔)"
+status: "voice_floor_pending_audition"
+physical_master: "file:///home/ben/Music/voice_assets/zhichun/base.wav"
+f0_target: "Pending（表B 本席 F0 列空缺）"
+pipeline: "E1 OmniVoice · Voice Design · 男·中年·河南话·中音调 · speed 1.05（无 seed ⇒ 不可同人重跑，P-01/P-16）"
 transmission_channel: "Direct Clean"
 ---
 
@@ -31,3 +31,35 @@ transmission_channel: "Direct Clean"
 - **声学形态**：
   - **核心语态**：**地道老天津卫调侃普通话（轻微相声/曲艺数来宝底色，拖腔松弛，带笑意）**。
   - **基频目标（F0）**：**125Hz ~ 142Hz**（微胖体态特有的胸腔共鸣松弛男中音）。
+
+<!-- BEGIN:VOICEFLOOR-2026-09-22 -->
+## 声底件（2026-09-22 夜 · 六格制度废止，坑账 P-16）
+
+> **本席现行产出物＝一条声底件**：`~/Music/voice_assets/zhichun/base.wav`。六格（base/probe/attack/defend/break/afterglow）**不再是默认产出**——无 seed 通道撑不起"一人六态"（P-14），情绪差改由总装层（台词＋speed＋DSP）承担。
+> 配方单一来源：`multipipeline-audio-render/characters/zhichun.json` ＋《五卷人物资产总册》声纹人设 表A/表B。
+
+| 字段 | 值 | 可复核性 |
+| :--- | :--- | :---: |
+| 席位·花名 | **13 知春**（丛中笑（法定真名 · 原字节架构师/计算所特聘 · 43岁）） | ✅ |
+| engine／mode | **OmniVoice（E1）／Voice Design** | ✅ |
+| instruct（逐字） | 男，中年，河南话，中音调 | ✅ |
+| speed | 1.05 | ✅ |
+| 探针台词（全员同句） | 这笔账我核了三十年。没有出处的话，我一个字都不给播。 | ✅ |
+| 传输链路 | 在场位 —— 近场电容麦，干净无损通道，不挂传输 DSP。 | ✅ |
+| post_dsp | 无（干音直出） |
+| 实测 | 4.96s ／ F0 中位 **189.0Hz** ／ IQR 154–229Hz ／ <250Hz 占比 7.9% | ✅ |
+| F0 目标带（表B） | 未标定（表B F0 列空缺） | ✅ |
+| SHA-256 | `412755d1b4508bb5a6c36bdee3bedb63008af08546e647f5ec1bd8cf892e6fa6` | ✅ |
+| 可复现性 | ❌ 声纹级不可（Design 无 seed，P-01）／❌ take 级不可／✅ 环境级（systemd 常驻 :9098） | ✅ |
+| 状态 | 待主理人耳朵终审；通过者抽 seed／固化 prompt 后才谈 `locked/` | ✅ |
+
+**判废与改判留痕**（`不合格隔离/`，禁 `rm`）：
+
+- `单方言无音调_20260922/` —— 判废原因：instruct 只女方言、未叠音调档，违反《五卷》声纹人设表 E1 硬门（须 音调＋方言 双件，否则 F0 不可控·坑账 P-05）。改判时间 2026-09-22，非 rm，留此备查。
+
+**待办（按主理人法）**
+
+1. 耳朵终审本件 ➔ 通过即抽 seed（E1 `scripts/make_seed.py`）或固化 `voice_clone_prompt`（E2）。
+2. 通过件 pickup 入 `locked/`，命名 `zhichun_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
+3. 改判必回写《五卷》表A/表B 与本卡 `genealogy_note`，不许只改音不改档。
+<!-- END:VOICEFLOOR-2026-09-22 -->

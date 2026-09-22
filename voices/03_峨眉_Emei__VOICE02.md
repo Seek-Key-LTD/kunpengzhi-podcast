@@ -71,3 +71,35 @@ transmission_channel: "Direct Clean"
   且该 ref 5.42s ≠ 定版母带 7.00s，无字节同源关系 —— **父母不明，按 §README 谱系铁律 6 判作废**。
 - **`speaker: 峨眉` 当前不可用**：调用它得到的是“老年极低音调”的另一个人，会直接推翻本角色的定版。
 - **`emei_opening_poem_final.wav` 查无此件**（§二 原记虚记）；定场诗实际以流水线命名毕业在 `san_geng_dao_chang/s01…s11/` 的 `para00/para99`（ep01–ep11 各一对，共 22 条）。
+
+<!-- BEGIN:VOICEFLOOR-2026-09-22 -->
+## 声底件（2026-09-22 夜 · 六格制度废止，坑账 P-16）
+
+> **本席现行产出物＝一条声底件**：`~/Music/voice_assets/emei/base.wav`。六格（base/probe/attack/defend/break/afterglow）**不再是默认产出**——无 seed 通道撑不起"一人六态"（P-14），情绪差改由总装层（台词＋speed＋DSP）承担。
+> 配方单一来源：`multipipeline-audio-render/characters/emei.json` ＋《五卷人物资产总册》声纹人设 表A/表B。
+
+| 字段 | 值 | 可复核性 |
+| :--- | :--- | :---: |
+| 席位·花名 | **03 峨眉**（梅心易（法定真名 · 川大哲学系副教授）／老梅（浑名）） | ✅ |
+| engine／mode | **OmniVoice（E1）／Voice Design** | ✅ |
+| instruct（逐字） | 女，中年，四川话，中音调 | ✅ |
+| speed | 0.98 | ✅ |
+| 探针台词（全员同句） | 这笔账我核了三十年。没有出处的话，我一个字都不给播。 | ✅ |
+| 传输链路 | 在场位 —— 近场电容麦，干净无损通道，不挂传输 DSP。 | ✅ |
+| post_dsp | 无（干音直出） |
+| 实测 | 4.73s ／ F0 中位 **235.3Hz** ／ IQR 203–276Hz ／ <250Hz 占比 1.5% | ✅ |
+| F0 目标带（表B） | 210–230Hz ➔ ✅ 落带内 | ✅ |
+| SHA-256 | `d583aaff3a51bf46ad5ca034c7bc0d1d416cbf61951f098a371ed960c400c0ab` | ✅ |
+| 可复现性 | ❌ 声纹级不可（Design 无 seed，P-01）／❌ take 级不可／✅ 环境级（systemd 常驻 :9098） | ✅ |
+| 状态 | 待主理人耳朵终审；通过者抽 seed／固化 prompt 后才谈 `locked/` | ✅ |
+
+**判废与改判留痕**（`不合格隔离/`，禁 `rm`）：
+
+- 无
+
+**待办（按主理人法）**
+
+1. 耳朵终审本件 ➔ 通过即抽 seed（E1 `scripts/make_seed.py`）或固化 `voice_clone_prompt`（E2）。
+2. 通过件 pickup 入 `locked/`，命名 `emei_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
+3. 改判必回写《五卷》表A/表B 与本卡 `genealogy_note`，不许只改音不改档。
+<!-- END:VOICEFLOOR-2026-09-22 -->

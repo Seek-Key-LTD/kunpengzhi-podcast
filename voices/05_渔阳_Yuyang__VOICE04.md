@@ -119,3 +119,37 @@ asetrate=24000*0.86,aresample=24000,atempo=1.1627906976744185,bass=g=8:f=170,equ
 - **档案 `physical_master` 曾误写 `04_yuyang_渔阳.wav`**（席位 05／声学号 VOICE_04 撞号，P-09），旧名不得再引用。
 - **两步法（E2 出口音 ➔ E1 clone 出肉身）作废**：`yuyang_seed.pt`／`yuyang_ref.wav` 已挪 Trash，`POST /reload_seeds` 后 E1 `/speakers` 无"渔阳"。渔阳**只在 E2 侧**，厚度走 DSP。
 - 实验场 `character_samples/` 内 20 余条 `yuyang_*` 历史候选从未归档 verdict，重跑前先清账。
+
+<!-- BEGIN:VOICEFLOOR-2026-09-22 -->
+## 声底件（2026-09-22 夜 · 六格制度废止，坑账 P-16）
+
+> **本席现行产出物＝一条声底件**：`~/Music/voice_assets/yuyang/base.wav`。六格（base/probe/attack/defend/break/afterglow）**不再是默认产出**——无 seed 通道撑不起"一人六态"（P-14），情绪差改由总装层（台词＋speed＋DSP）承担。
+> 配方单一来源：`multipipeline-audio-render/characters/yuyang.json` ＋《五卷人物资产总册》声纹人设 表A/表B。
+
+| 字段 | 值 | 可复核性 |
+| :--- | :--- | :---: |
+| 席位·花名 | **05 渔阳**（于鲜洋（法定真名 · 央财金融史教授）／老于（浑名）） | ✅ |
+| engine／mode | **Qwen3-TTS（E2）／Custom Voice** | ✅ |
+| instruct（逐字） | — | ✅ |
+| speed | E2 无 speed 入口 | ✅ |
+| 探针台词（全员同句） | 我跟您这么说，这钱搁在华尔街叫流动性，搁在我们这儿，就叫还没到账。 | ✅ |
+| 传输链路 | 远程位 —— 飞书 MCU 窄带链（300/3200Hz 截断＋粉红噪底＋50Hz 嗡鸣）。⚠ **本席例外**：`post_dsp` 的 d4 加厚链已**焊进** locked 六格母带（音高下移＋低频抬升，非传输链），故本席冻结件不是干音；换链路不必重抽声底，但改 d4 参数等于换母带 —— 须按除名三件套走。 | ✅ |
+| post_dsp | `asetrate=24000*0.86,aresample=24000,atempo=1.1627906976744185,bass=g=8:f=170,equalizer=f=320:t=q:w=1:g=2` | ✅ |
+| 实测 | 6.97s ／ F0 中位 **128.3Hz** ／ IQR 91–168Hz ／ <250Hz 占比 12.3% | ✅ |
+| F0 目标带（表B） | 125–150Hz ➔ ✅ 落带内 | ✅ |
+| SHA-256 | `6098fc034f1858edaa4c64be9c517ffbfa287421765b2ca5f6ff38fa127c98d6` | ✅ |
+| 可复现性 | ❌ 不可（Voice Design 无 seed／无 prompt 入口，同参数重跑必换脸，P-01/P-13） | ✅ |
+| 状态 | 2026-09-22 主理人圈定 d4 六格，已 pickup 至 voice_assets/locked/yuyang_d4_<state>.wav；六格 SHA 见 voices/05_渔阳_Yuyang__VOICE04.md §三。；通过者抽 seed／固化 prompt 后才谈 `locked/` | ✅ |
+
+**判废与改判留痕**（`不合格隔离/`，禁 `rm`）：
+
+- `E1clone两步法_改判E2加DSP_20260921/`
+- `E2候选_已定d4路线_20260922/`
+- `_AB_base_unclefu.wav/`
+
+**待办（按主理人法）**
+
+1. 耳朵终审本件 ➔ 通过即抽 seed（E1 `scripts/make_seed.py`）或固化 `voice_clone_prompt`（E2）。
+2. 通过件 pickup 入 `locked/`，命名 `yuyang_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
+3. 改判必回写《五卷》表A/表B 与本卡 `genealogy_note`，不许只改音不改档。
+<!-- END:VOICEFLOOR-2026-09-22 -->

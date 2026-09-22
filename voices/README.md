@@ -32,11 +32,15 @@ flowchart TD
    - **近场电容麦（Direct Clean）**：青衣、峨眉、乐山、知春（肉身在场，干净无损通道）；
    - **飞书远程连线（MCU DSP）**：渔阳、紫金、琅琊、云中、番禺、良渚、敦煌、竹湖、酒泉（经 DSP 处理：窄带 EQ 截断、低电平底噪、微弱网络码率感）。
 3. **架构解耦铁律**：彻底解耦 `cast_order`（法定席位序号）与 `voice_asset_id`（声学母带编号），严禁混用单一数字。
-4. **一人六合**：每个锁定角色在 `~/Music/voice_assets/<花名>/` 下**必须**有六条基线（`base/probe/attack/defend/break/afterglow`），对应第六层情绪状态机六态。一条声底糊全剧 = 不合格资产。
-5. **四层物理拓扑**（详见 `~/Music/voice_assets/locked/README.md`）：
+4. **一人一声底（P-16 · 2026-09-22 夜改判，原「一人六合」作废）**：主理人裁定“六格这个东西现在的技术达不到，放弃”。故每席**只需一条声底件** `~/Music/voice_assets/<花名>/base.wav`，耳朵通过后才谈抽 seed / 固化 prompt 与 `locked/`。
+   - 技术根据：E1 Voice Design 与 E2 Custom Voice **皆无 seed 入口**，连出六格＝六个人（坑账 P-01 / P-14）；而 E2 Voice Clone 通道**不接收 instruct**，六格情绪根本没有参数入口，只能靠台词硬凑 ⇒ “六合基线”在本机既不可复现也无从区分。
+   - 原六态（`base/probe/attack/defend/break/afterglow`）**降级为实验**：不作废已有历史件，但**不再作为合格资产的门槛**；今后不得再用“六格齐全”判定合格与否。
+5. **参数唯一来源（2026-09-22 新增）**：引擎、`instruct`、`speed`、F0 目标带一律取自《五卷人物资产总册》**表A／表B**（`content/special/五卷人物资产总册.md`）。改表必同步改角色卡 `characters/<id>.json`，反向亦然；**只改其一即为虚记**。
+   - **E1 硬门**：`instruct` 必须**音调档＋方言档双件齐全**，只写一项即判“配置不完整”⇒ 音色漂移、F0 偏差 10–15Hz 即声底不稳。方言锚是全场唯一辨识度主键。`scripts/audition.py` 已把闭词表做成机器闸（非法词直接拒，缺档出 `[warn]`）。
+6. **四层物理拓扑**（详见 `~/Music/voice_assets/locked/README.md`）：
    - **法统层**＝本目录 `voices/*.md`（唯一索引，路径全用绝对 `file:///` 引用）；
    - **冻结母带层**＝`~/Music/voice_assets/locked/`（声底父母 + 已定版母带，随附 `SHA256SUMS.txt`，入库即永不覆盖/改名/删除）；
-   - **六合基线仓**＝`~/Music/voice_assets/<花名>/`（六格分装，一格一锁）；
+   - **声底件仓**＝`~/Music/voice_assets/<花名>/base.wav`（P-16 后一席一格，随附 `声底清单.md`）；旧六合仓历史件保留、不再新增；
    - **毕业成品层**＝`~/Music/san_geng_dao_chang/sXX/`（已播出的整段音频）；
    - **试音室**＝`~/Music/san_geng_dao_chang_audition/<花名>/*_segments/`、**实验场**＝`~/Music/character_samples/`：两者**皆非资产**，只有听定且被档案引用者才准 pickup 进 `locked/`。
 6. **除名即记档**：作废母带挪 `~/.local/share/Trash/`（禁止 `rm`），并在 `locked/README.md` 除名表写明原因与去向；**只改档案不删物理件 = 假除名**。
@@ -49,25 +53,26 @@ flowchart TD
 > 从未说明这台机器上到底有几个模型、哪个在跑、哪个已经跑不起来。以下矩阵为**实地 `systemctl` / 端口 / 权重目录核查**结果，
 > 今后每个角色的第 9 层「生成谱系」**必须**从中指名唯一一个引擎。
 >
-> 🚨 **动手前必读坑账**：`/home/ben/Projects/gitea/multipipeline-audio-render/docs/VOICE_PITFALL_LEDGER.md`（P-01…P-11，每条带复现命令）。本矩阵是"是什么"，坑账是"怎么会错"；只读其一必踩另一。
+> 🚨 **动手前必读坑账**：`/home/ben/Projects/gitea/multipipeline-audio-render/docs/VOICE_PITFALL_LEDGER.md`（P-01…P-16，每条带复现命令）。本矩阵是"是什么"，坑账是"怎么会错"；只读其一必踩另一。
 
 | # | 引擎 | 物理位置 | 运行形态 | 能力 | 硬限制（实测） | 本库已冻结母带的实际出处 |
 |:--:| :--- | :--- | :--- | :--- | :--- | :--- |
-| **E1** | **OmniVoice** | `~/Apps/kunpengzhi-audio-engine/app.py`<br>权重 `~/Projects/rescue/models/omnivoice_model`（k2-fsa/OmniVoice，base `Qwen/Qwen3-0.6B`，28 层，apache-2.0） | ✅ **常驻**：systemd `kunpengzhi-audio-engine.service` → **:9098** | 双模：**Voice Design**（`instruct` 文本捏人）／**Voice Clone**（`*_seed.pt`） | ① `instruct` 是**闭词表**（`男/女`＋年龄段＋五档音调＋耳语＋方言名），写“温和／沙哑”直接 500。<br>② **接口无 seed 入口**：`OmniVoiceGenerationConfig` 只有 `num_step=32 / guidance_scale=2.0 / t_shift=0.1 / position_temperature=5.0 …`，**没有随机种子参数**。<br>③ 推论：**同一条 instruct，两次调用＝两个不同的人**。Design 模式天生不可复用。<br>④ `instruct` 不改变输出时长，只有 `speed` 改，且亚线性。<br>⑤ 当前 `/speakers` 已载 **4 个**：`qingyi/青衣`、`emei/峨眉`、`leshan/乐山`、`zijin/紫金`（英文键＝中文键同物）。父母谱系：紫金 ✅ 明确（`zijin_ref.wav` ＝ 冻结 `base.wav`，见 `manifest.json`）；青衣／峨眉 ❌ 5 月旧件、父母不可考；乐山 ⚠ 主理人裁定与峨眉撞脸。<br>⑥ **`*_seed.pt` 固定的是"人"，不是"条"**：文件内容为 `ref_audio_tokens + ref_text + ref_rms`（参考音替身），**不是随机种子**。实测同一 speaker／同一句／同一 speed 连调两次 ⇒ 文件字节与时长**不同**（99404B/7.26s vs 100844B/7.37s），但 F0 稳（128.2Hz vs 126.0Hz，同区间）。⇒ 结论：**E1 Clone 可复现声底身份，不可复现同一 take**；因此"重跑必重听"，逐字节比对在本引擎永远不成立（详见坑账 P-12）。 | 乐山 4 条、紫金 3 条（`04_zijin_紫金` / `ryan` / `aiden`） |
+| **E1** | **OmniVoice** | `~/Apps/kunpengzhi-audio-engine/app.py`<br>权重 `~/Projects/rescue/models/omnivoice_model`（k2-fsa/OmniVoice，base `Qwen/Qwen3-0.6B`，28 层，apache-2.0） | ✅ **常驻**：systemd `kunpengzhi-audio-engine.service` → **:9098** | 双模：**Voice Design**（`instruct` 文本捏人）／**Voice Clone**（`*_seed.pt`） | ① `instruct` 是**闭词表**（`男/女`＋年龄段＋五档音调＋耳语＋方言名），写“温和／沙哑”直接 500。<br>② **接口无 seed 入口**：`OmniVoiceGenerationConfig` 只有 `num_step=32 / guidance_scale=2.0 / t_shift=0.1 / position_temperature=5.0 …`，**没有随机种子参数**。<br>③ 推论：**同一条 instruct，两次调用＝两个不同的人**。Design 模式天生不可复用。<br>④ `instruct` 不改变输出时长，只有 `speed` 改，且亚线性。<br>⑤ 当前 `/speakers` 已载 **4 个**：`qingyi/青衣`、`emei/峨眉`、`leshan/乐山`、`zijin/紫金`（英文键＝中文键同物）。父母谱系：紫金 ✅ 明确（`zijin_ref.wav` ＝ 冻结 `base.wav`，见 `manifest.json`）；青衣／峨眉 ❌ 5 月旧件、父母不可考（**青衣那颗 `qingyi_seed.pt` 物理件 2026-09-21 已挪 Trash，但服务内存里仍在表** ⇒ `/speakers` 列出的"青衣"是残留声底污染，禁止当 clone 参考，改卡或重启用后要复查此格）；乐山 ⚠ 主理人裁定与峨眉撞脸。<br>⑥ **`*_seed.pt` 固定的是"人"，不是"条"**：文件内容为 `ref_audio_tokens + ref_text + ref_rms`（参考音替身），**不是随机种子**。实测同一 speaker／同一句／同一 speed 连调两次 ⇒ 文件字节与时长**不同**（99404B/7.26s vs 100844B/7.37s），但 F0 稳（128.2Hz vs 126.0Hz，同区间）。⇒ 结论：**E1 Clone 可复现声底身份，不可复现同一 take**；因此"重跑必重听"，逐字节比对在本引擎永远不成立（详见坑账 P-12）。 | 乐山 4 条、紫金 3 条（`04_zijin_紫金` / `ryan` / `aiden`） |
 | **E2** | **Qwen3-TTS** | `~/Apps/Qwen3-TTS`（`qwen_tts` 包 + `model_local_full/`＝**base**，无预置音色，**只有它能 clone**）<br>**`~/Projects/rescue/models/qwen3-customvoice`**＝1.7B **CustomVoice**，九大预置音色在此（`spk_id`= `serena/vivian/uncle_fu/ryan/aiden/ono_anna/sohee/eric/dylan`；`dylan=beijing_dialect, eric=sichuan_dialect`） | ❌ **非常驻**：无 systemd、无固定端口；只在需要时经 `~/.hermes/plugins/qwen3tts-server/`（与 vllm **抢卡换起**）临时拉起。跑法固定：`~/Apps/Qwen3-TTS/.venv/bin/python` ＋ transformers 4.57.3（用 miniconda 的 5.x 会 `KeyError: 'default'`，坑账 §一·C 环境坑） | 两份权重**能力互斥**（2026-09-22 实地读源码，见坑账 P-14）：<br>① `generate_custom_voice(text, speaker, language, instruct)` —— 吃自然语言 instruct，**但无 seed、无 prompt 入口**；codebook 每次调用重新采样 ⇒ **连调必换脸**，且 instruct 会连音色一起改。只准用于**选型**。<br>② `create_voice_clone_prompt(ref_audio, x_vector_only_mode)` → `VoiceClonePromptItem(ref_code, ref_spk_embedding, x_vector_only_mode, icl_mode, ref_text)` 可 `torch.save` 永久固化声纹；配 `generate_voice_clone(text, voice_clone_prompt=[item])` 出音 —— **但不接收 instruct**（instruct 只活在 custom_voice / voice_design 路径）⇒ 情绪只能写进**台词**。只准用于**生产**。 | ⚠ **本行三次改判史，留此立此存照**：旧版写“预置音色不走我方 prompt ⇒ 不可原样重跑”（**判错层次**，P-13 纠正）→ P-13 又写“`spk_id` 焊死在权重里 ⇒ 本机可原样重跑”（**判错机制**，P-14 再纠正）⇒ **现行结论**：`spk_id` 只固定“音色类别”，不固定“这一次是谁”。E2 资产的声纹级可重跑性**只看 `voice_clone_prompt` 有没有存盘**；凡 CustomVoice 直出件（含已 locked 的渔阳 d4 六格、青衣定版母带）一律挂 **⚠ 无 seed 连抽产物**。 | 青衣 `qingyi_vivian_v2_cultural_anchor.wav`（直出选型件）＋ **新路线**：`qingyi_vivian_xvec.pt` 已固化，`qingyi/base.wav` 为首格 clone 件（待耳朵终审）；渔阳 `yuyang_d4_<state>` 六格（直出连抽＋DSP d4，**六格同一人未经耳朵复核**）；青衣旧 E2 六格 2026-09-22 判废挪 `不合格隔离/`。
 | **E3** | **BreezyVoice** | `~/Apps/BreezyVoice`（内嵌 `cosyvoice` 子包） | ❌ 无常驻服务，`.venv` 手动拉起 | 联发科台湾繁中 G2PW，中／英／日／韩 Code-Switch | 只在实验场产出，**零冻结母带** | —（竹湖候选全在 `character_samples/`） |
 | **E4** | **CosyVoice2** | `~/Projects/github/CosyVoice` | ❌ **仅源码在库，未见权重与服务** | 档案宣称：Zero-Shot 跨情绪克隆、川普 0.75 档 | **本机上从未证实可用**；峨眉档案 `pipeline` 写它，但 `02_emei_峨眉.wav` 的真实出处**不可考** | 存疑，待主理人裁定 |
 | **E5** | **MiMo-TTS** | **本机无此服务名** | ❌ 不存在此名 | 档案宣称：四川方言 1.0 档 | **改判（2026-09-22）：不是无中生有，是厂牌叫错了名字。** OmniVoice 出自 **k2-fsa＝小米 AI Lab**（Povey 团队），主理人口头一贯称"小米的模型"；`MiMo-TTS` 是把厂牌名当成了引擎名。乐山冻结件实测出自 **E1 OmniVoice**（`leshan_ref.wav` 与 `leshan_chuanpu_03_共祖.wav` 字节相同）⇒ 虚记的是**名字**，不是引擎。**今后档案一律写 E1，禁止再出现 `MiMo-TTS`。** | 无（其"产出"即 E1 的产出） |
 
-### 由矩阵导出的三条铁律
+### 由矩阵导出的四条铁律
 
-1. **一人一引擎一格**：第 9 层「生成谱系」的 `engine` 字段只能填 **E1–E5 编号**，并写明该引擎当下的运行形态；填“OmniVoice 系”这种模糊话视为空项。
+1. **一人一引擎一条声底**：第 9 层「生成谱系」的 `engine` 字段只能填 **E1–E5 编号**，并写明该引擎当下的运行形态；填“OmniVoice 系”这种模糊话视为空项。
 2. **可复现性分三级判，禁止一句"不可重跑"糊过去**（2026-09-22 改判，原铁律 2 作废）：
    - **声纹级**——有没有固定的"人"：E1 看 `*_seed.pt`＋`/speakers` 在表；E2 **只看 `voice_clone_prompt` 存盘没有**——`spk_id` **不算**（CustomVoice 无 seed 入口，codebook 每次重采样，连调必换脸，坑账 P-14）。
    - **take 级**——能不能重出**同一条**：只有冻结文件的 SHA-256 能保证；**E1/E2 皆无随机种子入口 ⇒ take 级一律不可重跑**（坑账 P-12），有 seed 也必"重跑必重听"。
    - **环境级**——换机换时能不能复起：必须写全**权重路径 ＋ venv/解释器 ＋ 服务形态**（E2 只用 `~/Apps/Qwen3-TTS/.venv/bin/python`，transformers 4.57.3）。
    三级里断了哪一级，档案就只准挂哪一级的牌；**"没有常驻服务"不等于"不可重跑"**（P-13）。凡 take 级断裂的资产，`locked/SHA256SUMS.txt` 即其唯一身份。
-3. **无"人"的通道只准选型，不准生产**（覆盖 E1 Voice Design **与 E2 Custom Voice**，2026-09-22 扩写）：两者皆无 seed 入口，输出天生一次一换；任何“六格基线”若由连续 6 次直出拼成，**听感上就不是同一个人**（2026-09-21 紫金首产犯 E1 版；2026-09-22 青衣六格犯 E2 版，主理人当场判“这里边肯定是 6 个人”）。生产唯一合法路径是：**选型通道挑出声底父母 → 固化（E1 抽 `*_seed.pt`／E2 抽 `voice_clone_prompt`）→ Clone 出六格**。⚠ 代价：E2 Clone 通道**不接收 instruct**，情绪只能写进台词。⚠ 本律 2026-09-22 起**不追溯**已 `locked/` 的旧直出件（冻结库永不改名、不重跑），但此类件必须在档案第 9 层挂"出自无 seed 连抽"警告，并补一次**六格连听**——目前 **05 渔阳 d4 六格尚未连听过**（当初一格一抽一听），列在坑账 §二 待办。
+3. **无"人"的通道只准选型，不准生产**（覆盖 E1 Voice Design **与 E2 Custom Voice**，2026-09-22 扩写）：两者皆无 seed 入口，输出天生一次一换；任何“六格基线”若由连续 6 次直出拼成，**听感上就不是同一个人**（2026-09-21 紫金首产犯 E1 版；2026-09-22 青衣六格犯 E2 版，主理人当场判“这里边肯定是 6 个人”）。生产唯一合法路径是：**选型通道挑出声底父母 → 固化（E1 抽 `*_seed.pt`／E2 抽 `voice_clone_prompt`）→ Clone 出条**。⚠ 代价：E2 Clone 通道**不接收 instruct**，情绪只能写进台词。⚠ **P-16（2026-09-22 夜）：本律的“Clone 出六格”环节已停用** —— 现改为一人一条声底件，耳朵通过后才抽 seed / 固化 prompt。已 `locked/` 的旧直出件**不追溯**（冻结库永不改名、不重跑），但必须在档案第 9 层挂“出自无 seed 连抽”警告；历史六格件的连听复核（如 **05 渔阳 d4 六格**）降级为待办实验，不再是合格门槛。
+4. **机器指标只够粗筛，耳朵是唯一验收终端**（P-15 · 2026-09-22）：E2 `extract_speaker_embedding` 的余弦动态范围实测仅 **0.92–0.99**，跨性别也可到 **0.959** ⇒ `audition.py --identify` 只能抓“明显混席”（<0.93），**不得当作“同人／换脸”证据**。F0 中位与 <250Hz 占比同理，仅为“厚／薄”的量化代理。凡在档案里写下“声纹余弦证明是同一人”，即为超范围使用。
 
 ---
 
@@ -76,6 +81,8 @@ flowchart TD
 ### 🟢 梯队一：定板已锁定资产 (Phase 1 · 核心首发 5 人组)
 > **物理落点分两层**：定版声底已 pickup 至冻结库 `/home/ben/Music/voice_assets/locked/`（随附 `SHA256SUMS.txt` 全量指纹）；实验场 `/home/ben/Music/character_samples/` 只留盲测样音与废弃件。
 > ⚠ 下表「物理母带」列的 `NN_` 前缀是**历史创建序号**，既不等于 `cast_order` 也不等于 `voice_asset_id`，命名规范待重立（见 §四）。
+> ⚠ **P-16 后本梯队的门槛未变**（已进 `locked/`），但“六格齐全”不再算合格条件；本梯队仍缺的是**耳朵终审 ＋ 声纹固化**，不是样本数量。
+> **两条一票否决的选型律**：① **青衣＝E2 千问三 Vivian**，禁止改走 E1 clone 重铸（主理人：“一听阅历就不够”）；② **京腔男声只用 `dylan`，`uncle_fu` 全场拉黑**（详见坑账 §一·B 音色黑名单）。
 
 | 席位 | 声学ID | 花名 | 法定真名 | 物理母带文件 (`.wav`) | F0目标区间 | 语言/方言调谐 | 传输链路 | 当前工程状态 |
 |:---:|:---:|:---:|:---:|---|:---:|---|:---:|:---:|
@@ -97,31 +104,58 @@ flowchart TD
 
 ---
 
-### 🟡 梯队二：工程实验探索中 (Phase 1.5 · 具备候选样音)
-> 模型管线已打通，当前正在进行多候选方案盲测与多语种混流校准。
+### 🟡 梯队二 ➕ 梯队三 · 合并改判：声底件已产 · 待耳朵终审（P-16 · 2026-09-22 夜）
+> **改判**：原「梯队二 实验中 / 梯队三 📋 待排期」两栏已失去意义 —— 主理人令“快速把所有人的声音给我，把档案建起来”，
+> 全 17 席声底件已于本轮一次性产出，参数逐字取自《五卷人物资产总册》表B。梯队一与梯队二/三的分界不再是“有没有声音”，
+> 而是**“耳朵过没过、有没有进 `locked/`”**。
+> **物理落点**：`~/Music/voice_assets/<花名拼音>/base.wav` ＋ 同目录 `声底清单.md`（生成谱系＋实测）；
+> **试听包**：`~/Music/san_geng_dao_chang_audition/全员声底_20260922/`（17 条同句对照，统一探针句「这笔账我核了三十年。没有出处的话，我一个字都不给播。」）。
+> 达标列容差 ±8Hz，且**只是抓接错线的参考**（P-07/P-15）。
 
-| 席位 | 声学ID | 花名 | 法定真名 | 实验阶段母带候选 | F0目标区间 | 核心管线与方言特征 | 传输链路 | 当前工程状态 |
-|:---:|:---:|:---:|:---:|---|:---:|---|:---:|:---:|
-| **08** | `VOICE_06` | [琅琊](./08_琅琊_Langya__VOICE06.md) | **迟阆钟** | `langya_qingdao_optA_mid.wav` | 120-140Hz | 胶东青岛海蛎子味普通话 / 中气充沛七级海浪 | Feishu DSP | **🔬 3选型对比中 (Testing)** |
-| **14** | `VOICE_07` | [竹湖](./14_竹湖_Zhuhu__VOICE07.md) | **江映帆** | `zhuhu_designed_taiwan_male_58yo.wav` | 155-168Hz | Voice Design ➔ BreezyVoice (中英日英四语混杂) | Feishu DSP | **🔬 混流微调中 (Tuning)** |
+| 席位 | 花名 | 引擎/模式 | instruct（逐字，闭词表） | F0目标带 | **实测 F0** | <250Hz | 时长 | SHA-256 前缀 | 状态 |
+|:---:| :--- | :--- | :--- | :--- | ---: | ---: | ---: | :--- | :--- |
+| **02** | [盛乐](./02_盛乐_Shengle__VOICE08.md) | E1 Voice Design | 男，中年，中音调 | 140–160 | 140.8 | 2.7% | 5.06s | `a23787ea` | ⏳ 待耳朵终审 ⚠ 无方言锚（硬门缺档，表B 原样） |
+| **06** | [珞珈](./06_珞珈_Luojia__VOICE13.md) | E1 Voice Design | 男，青年，石家庄话，中音调 | 170–185 | 177.8 | 11.3% | 4.81s | `efe90677` | ⏳ 待耳朵终审 |
+| **08** | [琅琊](./08_琅琊_Langya__VOICE06.md) | E1 Voice Design | 男，中年，青岛话，低音调 | 140–160 | 154.8 | 14.2% | 5.29s | `81f26cab` | ⏳ 待耳朵终审（表B 原记 120–140 与本席音调互斥，已按低音调整改） |
+| **09** | [云中](./09_云中_Yunzhong__VOICE09.md) | E1 Voice Design | 男，中年，陕西话，中音调 | 165–180 | 171.4 | 16.3% | 5.33s | `b7a81554` | ⏳ 待耳朵终审 ⚠ 表B 写“晋北大同”，E1 闭词表无大同/晋语档，暂以陕西话为最近锚 |
+| **10** | [番禺](./10_番禺_Panyu__VOICE10.md) | E1 Voice Design | 男，中年，极低音调 | 125–145 | 132.6 | 51.3% | 4.93s | `fe3dab35` | ⏳ 待耳朵终审 ⚠ 无方言锚；低频占比全场最高，厚度归 DSP 层 |
+| **11** | [良渚](./11_良渚_Liangzhu__VOICE11.md) | E1 Voice Design | 男，中年，中音调 | 175–190 | 171.4 | 13.4% | 4.80s | `87978ea7` | ⏳ 待耳朵终审 ⚠ 无方言锚（吴音不在 12 项词表内） |
+| **12** | [敦煌](./12_敦煌_Dunhuang__VOICE12.md) | E1 Voice Design | 男，老年，甘肃话，低音调 | 125–145 | 152.4 | 32.7% | 5.52s | `e47affb6` | ⏳ 待耳朵终审（超带 7.4Hz，容差内） |
+| **13** | [知春](./13_知春_Zhichun__VOICE14.md) | E1 Voice Design | 男，中年，河南话，中音调 | **未标定** | 189.0 | 7.9% | 4.96s | `412755d1` | ⏳ 待耳朵终审 ⚠ 表B 未给本席 F0 带，待主理人定带后回填 |
+| **14** | [竹湖](./14_竹湖_Zhuhu__VOICE07.md) | E1 Voice Design | 男，老年，中音调 | 150–170 | **181.8** | 22.2% | 5.89s | `5cc3803d` | 🔴 **偏离带 11.8Hz** —— 要么改音调档重出，要么主理人改表B；中英四语混流仍归 E3 BreezyVoice |
+| **15** | [酒泉](./15_酒泉_Jiuquan__VOICE15.md) | E1 Voice Design | 男，青年，陕西话，高音调 | 195–210 | **228.6** | 3.8% | 4.51s | `54493bab` | 🔴 **偏离带 18.6Hz** —— 表B 原要求“陕西话＋甘肃话”双挂，E1 同类互斥必 500，已取陕西话单锚；音调档是否降一档待裁 |
+| **16** | [普陀](./16_普陀_Putuo__VOICE16.md) | E1 Voice Design | 男，中年，中音调 | 170–185 | 169.0 | 7.1% | 4.70s | `26a54cd0` | 👁 **法统限界**：本席失聪，第一季至第二季初期全程笔谈不发一言（总册 L563）；本件为**术后重获新声预备**，非当季资产 |
+| **17** | [岚桥](./17_岚桥_Lanqiao__VOICE17.md) | E1 Voice Design | 男，中年，河南话，低音调 | 150–165 | 153.8 | 17.6% | 5.06s | `345e5f98` | ⏳ 待耳朵终审 |
+
+**梯队一内本轮新出的两条声底件（不替换 `locked/` 旧冻结件，只为重定声底父母）**：
+
+| 席位 | 花名 | instruct | F0目标带 | 实测 | SHA-256 前缀 | 说明 |
+|:---:| :--- | :--- | :--- | ---: | :--- | :--- |
+| **03** | 峨眉 | 女，中年，四川话，中音调 | 210–230 | 235.3Hz | `d583aaff` | `locked/02_emei_峨眉.wav` 出处不可考（E4 本机仅源码，P-08）⇒ 本件为**重定声底父母候选**，与旧冻结件并行挂账 |
+| **04** | 乐山 | 男，中年，四川话，低音调 | 140–160 | 165.5Hz | `11c74dcb` | 同上：旧冻结件被判**与峨眉撞脸**（P-07），本件按表B 音调降档重出，待耳朵分辨二分 |
+
+**判废留痕（一律 `mv`，全库无 `rm`）**：首批 5 席（珞珈/琅琊/云中/知春/酒泉）instruct 只挂方言缺音调档，违 E1 硬门 ⇒ 挪 `voice_assets/<id>/不合格隔离/单方言无音调_20260922/`；琅琊/良渚另两席 F0 与表B 权威带不符 ⇒ 挪 `不合格隔离/F0目标带改判_20260922/`。各目录均随附 `判废原因.txt`。
+
+**本轮不可机器解决的三件事（等主理人耳朵/拍板）**：① 17 条同句试听包逐席过耳；② 14 竹湖、15 酒泉偏离带的“改配方 vs 改表B”二选一；③ 通过件才可 pickup `locked/`（随附 `SHA256SUMS.txt`，pickup 后 `sha256sum -c` 核条数）。
 
 ---
 
-### ⚪ 梯队三：声学蓝图就绪 / 待算力批量生产 (Phase 2 · 候补 8 人组)
-> 人物小传、认识论、禁演清单与声学指纹定义已就绪，等待局域网 GPU 节点下发推理生产。
+### ⚪ 梯队三（已并入上一表）· 旧“规划参数”与表B 权威参数的差账留痕
+> 本表原为「声学蓝图就绪 / 待算力批量生产」的排队名单，P-16 后声底件已全部产出，故只保留**差账**：
+> 旧档案列的 F0 区间与方言描述，多数与《五卷》表B 不符。**一律以表B 与上表为准，旧数字不得再被引用**（否则就是 P-08 虚记复发）。
 
-| 席位 | 声学ID | 花名 | 法定真名 | 规划母带编号 | F0规划区间 | 规划核心管线 | 传输链路 | 当前工程状态 |
-|:---:|:---:|:---:|:---:|---|:---:|---|:---:|:---:|
-| **02** | `VOICE_08` | [盛乐](./02_盛乐_Shengle__VOICE08.md) | **孛儿只斤·敖日其楞** | `08_shengle_盛乐.wav` | 115-135Hz | OmniVoice 蒙普染色 + CosyVoice2 豪迈声底 | Direct Clean | **📋 待排期 (Queued)** |
-| **06** | `VOICE_13` | [珞珈](./06_珞珈_Luojia__VOICE13.md) | **落花生** | `13_luojia_珞珈.wav` | 135-150Hz | 楚地鄂东官话普通话 / 语速快 / 尖锐条约法医 | Feishu DSP | **📋 待排期 (Queued)** |
-| **09** | `VOICE_09` | [云中](./09_云中_Yunzhong__VOICE09.md) | **云久元** | `09_yunzhong_云中.wav` | 125-145Hz | 晋北大同底色官话 / 沉郁苍凉 / 落地有声 | Feishu DSP | **📋 待排期 (Queued)** |
-| **10** | `VOICE_10` | [番禺](./10_番禺_Panyu__VOICE10.md) | **潘谦钺** | `10_panyu_番禺.wav` | 135-150Hz | 儒雅广普 / 慢品工夫茶 / 席下藏钺台风动力学 | Feishu DSP | **📋 待排期 (Queued)** |
-| **11** | `VOICE_11` | [良渚](./11_良渚_Liangzhu__VOICE11.md) | **梁随祝** | `11_liangzhu_良渚.wav` | 140-155Hz | 江浙吴音底色普通话 / 缜密清冷 / 古DNA双螺旋 | Feishu DSP | **📋 待排期 (Queued)** |
-| **12** | `VOICE_12` | [敦煌](./12_敦煌_Dunhuang__VOICE12.md) | **黄拓石** | `12_dunhuang_敦煌.wav` | 120-138Hz | 西北兰州官话底色 / 黄土沉积风沙感 / 托石老队长 | Feishu DSP | **📋 待排期 (Queued)** |
-| **13** | `VOICE_14` | [知春](./13_知春_Zhichun__VOICE14.md) | **丛中笑** | `14_zhichun_知春.wav` | 125-142Hz | 天津卫相声曲艺底色 / 微胖松弛中音 / 拜占庭解构 | Direct Clean | **📋 待排期 (Queued)** |
-| **15** | `VOICE_15` | [酒泉](./15_酒泉_Jiuquan__VOICE15.md) | **唐数敕** | `15_jiuquan_酒泉.wav` | 145-160Hz | 西北极客快速连珠炮 / 算法即国家敕令 | Feishu DSP | **📋 待排期 (Queued)** |
-| **16** | `VOICE_16` | [普陀](./16_普陀_Putuo__VOICE16.md) | **华忠仁** | `None (Mute/Pen)` | 待定 | **无声观察者 (失聪·便签笔谈)** / 打破第四面墙 | Silent Notes | **👁️ 无声观测 (Silent)** |
-| **17** | `VOICE_17` | [岚桥](./17_岚桥_Lanqiao__VOICE17.md) | **尹卞迁** | `17_lanqiao_岚桥.wav` | 135-150Hz | 海派精英金融冷讽普 / 四证大满贯提篮桥预备役 | Feishu DSP | **📋 待排期 (Queued)** |
+| 席位 | 旧档案 F0 | 表B 权威 F0 | 旧档案管线说法 | 实产（本轮） |
+|:---:| :--- | :--- | :--- | :--- |
+| 02 盛乐 | 115-135Hz | 140–160Hz | “OmniVoice 蒙普染色 + **CosyVoice2** 豪迈声底” | E1 Voice Design；**CosyVoice2 本机仅有源码**（E4），不得再写进任何角色的 pipeline |
+| 06 珞珈 | 135-150Hz | 170–185Hz | “楚地鄂东官话” | 石家庄话（E1 十二方言档内无湖北官话，取最近锚并留痕） |
+| 09 云中 | 125-145Hz | 165–180Hz | “晋北大同底色官话” | 陕西话（词表无晋语档） |
+| 10 番禺 | 135-150Hz | 125–145Hz | “儒雅广普” | 无方言锚（词表无粤语/广普）⇒ 极低音调单件，硬门警告已挂 |
+| 11 良渚 | 140-155Hz | 175–190Hz | “江浙吴音底色” | 无方言锚（词表无吴语）⇒ 中音调，硬门警告已挂 |
+| 12 敦煌 | 120-138Hz | 125–145Hz | “西北兰州官话” | 甘肃话＋老年＋低音调 |
+| 13 知春 | 125-142Hz | **表B 未给带** | “天津卫相声曲艺底色” | 河南话（词表无天津话）；F0 待主理人定带 |
+| 15 酒泉 | 145-160Hz | 195–210Hz | “西北极客连珠炮” | 陕西话＋青年＋高音调（表B 的“陕西话＋甘肃话”双挂违反 E1 同类互斥，必 500） |
+| 16 普陀 | 待定 | 170–185Hz | “无声观察者 (Mute/Pen)” | 本席**法统限界**＝全程笔谈不发一言；件已出，属术后新声预备 |
+| 17 岚桥 | 135-150Hz | 150–165Hz | “海派精英金融冷讽普” | 河南话＋低音调（词表无上海话/吴语） |
 
 ---
 
@@ -135,7 +169,7 @@ flowchart TD
 3. 私人伤口 (Personal Vulnerability)   —— 为何研究此问题、怕失去什么、哪句话刺穿教授身份
 4. 人际拓扑 (Interpersonal Topology)   —— 尊重谁、看不起谁、替谁圆场、被谁说服丢脸、私下称呼
 5. 声学指纹 (Acoustic Fingerprint)     —— F0区间、语速、共鸣腔、口音浓度、笑声、激动反应
-6. 情绪状态机 (Emotion State Machine)  —— BASE / PROBE / ATTACK / DEFEND / BREAK / AFTERGLOW（= 六合基线仓的六格）
+6. 情绪状态机 (Emotion State Machine)  —— BASE / PROBE / ATTACK / DEFEND / BREAK / AFTERGLOW（**P-16：六态仍是"人设写法"，不再是声学资产要求** —— 本机无 seed 通道，六格连抽＝六个人）
 7. 禁演清单 (Negative Constraints)     —— 严格列出该角色绝不能出现的发音与表达禁忌
 8. 十二句校准台词 (12-Line Benchmark)  —— 统一横向拉开度测试数据集
 9. 生成谱系 (Voice Genealogy)          —— 见 §三之二：这个声音到底怎么来的，能不能重跑
@@ -166,16 +200,29 @@ flowchart TD
                                                  ▼
 ② Voice Clone  ◀── ref_audio = 声底父母 ──  kunpengzhi-audio-engine 抽 *_seed.pt
                                                    │
-                          六格基线（base/probe/attack/defend/break/afterglow）
-                                                   │
-                                        情绪/语速/文案换档，声底不变
+                          （P-16 后）逐条成品音，声底不变
+                          旧「六格基线 base/probe/attack/defend/break/afterglow」已废止为默认产出
 ```
 
-**三条硬规定：**
+**四条硬规定：**
 
 1. **Clone 的参考音必须是 `locked/` 里的那条母带**（字节一致，SHA-256 可核）。现状：全库仅 `leshan_ref.wav` 做到（与 `leshan_chuanpu_03_共祖.wav` 字节相同）；`qingyi_ref.wav`、`emei_ref.wav` **父母不明，按律作废待重抽**。
 2. **Clone 效果不佳 ⇒ 回退 ①，不在 ② 上打补丁。** 因为 Voice Clone 只继承音色，不继承表现力：参考音本身没情绪层次，换多少 seed 都救不回来。回退动作＝重发 Design 候选（改 `instruct` 或换引擎）→ 重新听定 → 换新声底父母 → 重抽 seed。旧 seed 连同其产出**整批**进 `~/.local/share/Trash/`，禁止新旧混用。
-3. **`instruct` 是闭集，不能自由发挥。** OmniVoice 只认：`男/女`、`儿童/少年/青年/中年/老年`、`极低音调/低音调/中音调/高音调/极高音调`、`耳语`、方言（四川话/青岛话/河南话/石家庄话…），且不可中英混写。**“温和”“沙哑”“学者气”写进去直接 500 报错** —— 这类质感只能靠参考音与语速做出来，记档案时不许冒充参数。
+3. **`instruct` 是闭集，不能自由发挥。** 逐字读 `omnivoice/utils/voice_design.py:31-76` 所得的全量词表如下（**此外任何词都算非法**）：
+
+   | 类 | 全量取值 |
+   | :--- | :--- |
+   | 性别 | `男` / `女` |
+   | 年龄 | `儿童` / `少年` / `青年` / `中年` / `老年` |
+   | 音调 | `极低音调` / `低音调` / `中音调` / `高音调` / `极高音调` |
+   | 其他 | `耳语` |
+   | 方言（**仅 12 项**） | 河南话·陕西话·四川话·贵州话·云南话·桂林话·济南话·石家庄话·甘肃话·宁夏话·青岛话·东北话 |
+   | 口音 | 仅英文路径有，中文路径无此项 |
+
+   **组合律**：合法式＝`[性别][年龄][音调] ＋ 至多一个（耳语 / 方言）`；同类互斥，**双挂两个方言必 500**；不可中英混写。
+   **“温和”“沙哑”“学者气”“沧桑”“温润”写进去直接 500 报错** —— 这类质感只能靠参考音、语速与后期 DSP 做出来，记档案时不许冒充参数（P-04/P-08）。
+   `scripts/audition.py` 的 `check_e1_instruct()` 已把上表做成机器闸：非法词直接拒绝出音，缺音调档/方言档出 `[warn]`（E1 硬门，只警不拦，因为表B 确有五席无方言锚）。
+4. **耳朵是唯一验收终端，本机没有“机器判同人”这条路**（P-07/P-15）：F0 中位、<250Hz 占比、声纹余弦都只是**抓接错线和量厚度的代理指标**；声纹余弦动态范围实测 0.92–0.99，跨性别也能到 0.959 ⇒ 只有 <0.93 才可信地判“混进了别的席位”，**不足以证明是同一个人**。
 
 ### §三之四 · 命名规范（2026-09-21 起重立）
 
@@ -184,7 +231,7 @@ flowchart TD
 | 位置 | 命名 | 说明 |
 | :--- | :--- | :--- |
 | `voice_assets/locked/`（平铺） | `<花名拼音>_<engine>_<编号或语义>.wav` | 例 `zijin_omnivoice_v3_kaochang.wav`；**禁止**数字前缀 |
-| `voice_assets/<花名>/`（六合仓） | `<state>.wav` | 身份由路径给出，文件名不再重复角色，例 `attack.wav` |
+| `voice_assets/<花名>/`（**声底件仓**，P-16） | `base.wav` ＋ `声底清单.md` | 一席一条；身份由路径给出，文件名不再重复角色。旧六合件（`probe/attack/…`）保留不新增 |
 | 试音室原子 | `<季>p<集>_<state>_<4位时序>.wav` | 半成品，永不进冻结库 |
 | 毕业成品 | `s{季:02d}_ep{集:02d}_para{段:02d}_{时序}_{花名}.wav` | 沿用既有规范 |
 | 档案文件 | `NN_花名_Pinyin__VOICEnn.md` | `NN`＝席位，`VOICEnn`＝声学号，两者**永不混用** |
@@ -192,4 +239,4 @@ flowchart TD
 ---
 
 > 档案维护者：Antigravity 系统架构组  
-> 最新更新时间：2026-09-18
+> 最新更新时间：**2026-09-22 夜**（P-16 六格废止 ➔ 一人一条声底件；全 17 席声底件首产入仓；E1 闭词表与硬门机器化；参数唯一来源改指《五卷》表A/表B）

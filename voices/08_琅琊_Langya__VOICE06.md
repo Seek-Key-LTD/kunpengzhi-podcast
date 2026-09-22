@@ -3,10 +3,10 @@ cast_order: 08
 voice_asset_id: "VOICE_06"
 codename: "琅琊"
 legal_name: "迟阆钟"
-status: "experimenting"
-physical_master: "langya_qingdao_optA_mid.wav (Candidate)"
-f0_target: "120Hz-140Hz"
-pipeline: "OmniVoice (青岛话设计)"
+status: "voice_floor_pending_audition"
+physical_master: "file:///home/ben/Music/voice_assets/langya/base.wav"
+f0_target: "140Hz-160Hz（《五卷》表B）"
+pipeline: "E1 OmniVoice · Voice Design · 男·中年·青岛话·低音调 · speed 0.95（无 seed ⇒ 不可同人重跑，P-01/P-16）"
 transmission_channel: "Feishu DSP (MCU)"
 ---
 
@@ -42,3 +42,36 @@ transmission_channel: "Feishu DSP (MCU)"
 - **方案 B（深海远洋重中音 · 低音 · 推荐）**：[langya_qingdao_optB_low.wav](file:///home/ben/Music/character_samples/langya_qingdao_optB_low.wav)
 - **方案 C（老水手沧桑退役舰长 · 老年）**：[langya_qingdao_optC_elder.wav](file:///home/ben/Music/character_samples/langya_qingdao_optC_elder.wav)
 - **席位通道**：飞书远端海况接入，带微量混响与高信噪比底噪。
+
+<!-- BEGIN:VOICEFLOOR-2026-09-22 -->
+## 声底件（2026-09-22 夜 · 六格制度废止，坑账 P-16）
+
+> **本席现行产出物＝一条声底件**：`~/Music/voice_assets/langya/base.wav`。六格（base/probe/attack/defend/break/afterglow）**不再是默认产出**——无 seed 通道撑不起"一人六态"（P-14），情绪差改由总装层（台词＋speed＋DSP）承担。
+> 配方单一来源：`multipipeline-audio-render/characters/langya.json` ＋《五卷人物资产总册》声纹人设 表A/表B。
+
+| 字段 | 值 | 可复核性 |
+| :--- | :--- | :---: |
+| 席位·花名 | **08 琅琊**（迟阆钟（法定真名 · 海大物理海洋首席/船长 · 55岁）） | ✅ |
+| engine／mode | **OmniVoice（E1）／Voice Design** | ✅ |
+| instruct（逐字） | 男，中年，青岛话，低音调 | ✅ |
+| speed | 0.95 | ✅ |
+| 探针台词（全员同句） | 这笔账我核了三十年。没有出处的话，我一个字都不给播。 | ✅ |
+| 传输链路 | 远程位 —— 飞书 MCU 窄带链（300/3200Hz 截断＋粉红噪底＋50Hz 嗡鸣）。⚠ 本声底件是**干音**：传输 DSP 在总装层挂，不进声底层（否则母带被 DSP 焊死，换链路就得重抽声底）。 | ✅ |
+| post_dsp | 无（干音直出） |
+| 实测 | 5.29s ／ F0 中位 **154.8Hz** ／ IQR 131–172Hz ／ <250Hz 占比 14.2% | ✅ |
+| F0 目标带（表B） | 140–160Hz ➔ ✅ 落带内 | ✅ |
+| SHA-256 | `81f26cab0be60a5e545d1a8b7f2b10ccd6b123a77cd4888c6fab9ddb92ae3cbd` | ✅ |
+| 可复现性 | ❌ 声纹级不可（Design 无 seed，P-01）／❌ take 级不可／✅ 环境级（systemd 常驻 :9098） | ✅ |
+| 状态 | 待主理人耳朵终审；通过者抽 seed／固化 prompt 后才谈 `locked/` | ✅ |
+
+**判废与改判留痕**（`不合格隔离/`，禁 `rm`）：
+
+- `F0目标带改判_20260922/` —— 判废原因：《五卷》表B 权威目标带 —— 08 琅琊 140–160Hz（应配 低音调，原配 中音调）；11 良渚 175–190Hz（应配 中音调＋快语速，原配 高音调 得 213.3Hz 偏离）。2026-09-22 按权威带改判重出。
+- `单方言无音调_20260922/` —— 判废原因：instruct 只女方言、未叠音调档，违反《五卷》声纹人设表 E1 硬门（须 音调＋方言 双件，否则 F0 不可控·坑账 P-05）。改判时间 2026-09-22，非 rm，留此备查。
+
+**待办（按主理人法）**
+
+1. 耳朵终审本件 ➔ 通过即抽 seed（E1 `scripts/make_seed.py`）或固化 `voice_clone_prompt`（E2）。
+2. 通过件 pickup 入 `locked/`，命名 `langya_<语名>.wav`，**禁数字前缀**，同步 `locked/README.md` 与 `SHA256SUMS.txt`，`sha256sum -c` 核条数。
+3. 改判必回写《五卷》表A/表B 与本卡 `genealogy_note`，不许只改音不改档。
+<!-- END:VOICEFLOOR-2026-09-22 -->
