@@ -2,13 +2,13 @@ name: Sync Manuscripts to Feishu Wiki
 
 # 把仓库文字稿增量同步进飞书知识库（repo → Feishu wiki）。
 #
-# 前置（一次性，跑在 pve runner 主机上）：
-#   1) 装 lark-cli（node 环境），或用已有 /usr/local/bin/lark-cli；
-#   2) 用 n8n runner 主机的 HOME 配一次应用并做设备码授权：
-#        printf '%s' "$APP_SECRET" | lark-cli config init --app-id cli_a96ae027b1fc5bc0 --app-secret-stdin --name n8n-cli
-#        lark-cli --profile n8n-cli auth login --domain all --no-wait --json   # 拿 URL，浏览器完成
-#   注意：该 runner 以 root 运行（config /root/.runner），所以 profile 落在 /root/.lark-cli。
-#   未完成前置时本 workflow 会打印提示并以 0 退出（不报红、不影响其它 job）。
+# 前置（一次性，跑在 raccoon 上，该 runner 以 ben 运行、HOME=/home/ben）：
+#   1) lark-cli 已装（/usr/local/bin/lark-cli）；
+#   2) 配一次应用并做设备码授权（主机无浏览器也没关系，授权在手机/电脑完成）：
+#        printf '%s' "$APP_SECRET" | lark-cli config init --app-id cli_a96ae027b1fc5bc0 --app-secret-stdin --brand feishu --name n8n-cli
+#        lark-cli --profile n8n-cli auth login --domain all --no-wait --json   # 拿 URL → 授权 → --device-code 收尾
+#   profile 落在 /home/ben/.lark-cli；lark-cli 会自行续期短期凭证。
+#   未完成前置时本 workflow 打印提示并以 0 退出（不报红、不影响其它 job）。
 #
 # 依赖：scripts/sync_feishu_wiki.py（幂等，状态文件 scripts/feishu_wiki_state.json）
 
@@ -29,7 +29,7 @@ permissions:
 jobs:
   sync:
     name: repo → Feishu wiki
-    runs-on: pve
+    runs-on: [raccoon]
     steps:
       - name: 检出仓库
         env:
