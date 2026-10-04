@@ -1,0 +1,67 @@
+name: Sync Manuscripts to Feishu Wiki
+
+# 把仓库文字稿增量同步进飞书知识库（repo → Feishu wiki）。
+#
+# 前置（一次性，跑在 pve runner 主机上）：
+#   1) 装 lark-cli（node 环境），或用已有 /usr/local/bin/lark-cli；
+#   2) 用 n8n runner 主机的 HOME 配一次应用并做设备码授权：
+#        printf '%s' "$APP_SECRET" | lark-cli config init --app-id cli_a96ae027b1fc5bc0 --app-secret-stdin --name n8n-cli
+#        lark-cli --profile n8n-cli auth login --domain all --no-wait --json   # 拿 URL，浏览器完成
+#   注意：该 runner 以 root 运行（config /root/.runner），所以 profile 落在 /root/.lark-cli。
+#   未完成前置时本 workflow 会打印提示并以 0 退出（不报红、不影响其它 job）。
+#
+# 依赖：scripts/sync_feishu_wiki.py（幂等，状态文件 scripts/feishu_wiki_state.json）
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'scripts/sync_feishu_wiki.py'
+  schedule:
+    # 21:30 UTC = 05:30 北京
+    - cron: "30 21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: repo → Feishu wiki
+    runs-on: pve
+    steps:
+      - name: 检出仓库
+        env:
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          REPO="https://x-access-token:$GIT_TOKEN@gitea.capitaltrain.cn/seekkey/kunpengzhi-podcast"
+          DEST="$HOME/_work/kunpengzhi-podcast/kunpengzhi-podcast"
+          mkdir -p "$(dirname "$DEST")"
+          if [ -d "$DEST/.git" ]; then
+            git -C "$DEST" remote set-url origin "$REPO"
+            git -C "$DEST" fetch --quiet origin main
+            git -C "$DEST" checkout --quiet -B main origin/main
+            git -C "$DEST" reset --hard --quiet origin/main
+          else
+            git clone --quiet "$REPO" "$DEST"
+          fi
+          echo "WORKSPACE=$DEST" >> "$GITHUB_ENV"
+
+      - name: 前置检查（lark-cli 登录态）
+        run: |
+          set -euo pipefail
+          if ! command -v lark-cli >/dev/null 2>&1; then
+            echo "SKIP: 本机未安装 lark-cli"
+            echo "SKIP_SYNC=1" >> "$GITHUB_ENV"; exit 0
+          fi
+          if ! lark-cli --profile n8n-cli auth status >/dev/null 2>&1; then
+            echo "SKIP: profile n8n-cli 未登录（需一次性设备码授权，见本 workflow 顶部注释）"
+            echo "SKIP_SYNC=1" >> "$GITHUB_ENV"; exit 0
+          fi
+
+      - name: 同步到飞书知识库
+        if: env.SKIP_SYNC != '1'
+        working-directory: ${{ env.WORKSPACE }}
+        run: python3 scripts/sync_feishu_wiki.py --include-spinoff

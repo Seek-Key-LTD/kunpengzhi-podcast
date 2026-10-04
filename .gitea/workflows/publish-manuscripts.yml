@@ -29,6 +29,8 @@ jobs:
       - name: Sync manuscripts branch
         env:
           GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 分支名按下游目标命名：lark / notion / lexiang ...（各自的投影可能略有差异）
+          MANUSCRIPTS_BRANCH: lark
         run: bash scripts/publish_manuscripts.sh
 
       - name: Notify n8n
