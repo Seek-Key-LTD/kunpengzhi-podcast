@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 """把仓库文字稿同步到飞书知识库（repo → Feishu wiki）。
 
-- 目标：公开知识库 space_id=7692783315471846383 下的容器节点「三更道场 · 文字稿」。
-- 手段：调用本机 lark-cli（用户身份；公开知识库应用 tenant 写不进去）。
-- 幂等：按标题对账；内容 sha256 未变则跳过；已存在则 `docs +update --command overwrite`，否则 `docs +create` + `wiki +move`。
-- 状态：scripts/feishu_wiki_state.json（path -> {node_token,obj_token,sha256,title}）。
+- 目标：公开知识库 space_id=7692783315471846383。
+- 结构：容器「三更道场 · 文字稿」
+            ├─ 主线正稿（15 篇）
+            └─「番外」
+                 └─「<系列>」
+                       └─ 该系列文稿
+- 手段：调用本机 lark-cli 的用户身份（公开知识库应用 tenant 写不进去）。
+- 幂等：按标题对账；sha256 未变则跳过；已存在则 `docs +update --command overwrite`，否则 `docs +create` + `wiki +move`。
+- 状态：scripts/feishu_wiki_state.json（rel_path -> {title,node_token,obj_token,sha256}）。
 
 用法：
-    python3 scripts/sync_feishu_wiki.py                 # 主线
+    python3 scripts/sync_feishu_wiki.py                    # 主线
     python3 scripts/sync_feishu_wiki.py --include-spinoff  # 主线 + 番外
     python3 scripts/sync_feishu_wiki.py --dry-run
 
-环境变量：
-    LARK_BIN       默认 lark-cli
-    LARK_PROFILE   默认 n8n-cli（设备码授权拿到的用户 token）
-    FEISHU_SPACE_ID / FEISHU_CONTAINER  覆盖默认空间/容器
+环境变量：LARK_BIN / LARK_PROFILE / FEISHU_SPACE_ID / FEISHU_CONTAINER
 """
 import argparse
 import glob
@@ -27,12 +29,11 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SPACE_ID = os.environ.get("FEISHU_SPACE_ID", "7692783315471846383")
 CONTAINER = os.environ.get("FEISHU_CONTAINER", "XBgZw3UvBiH8AOkXpH9cQYVjnkf")
-CONTAINER_TITLE = "三更道场 · 文字稿"
+SPINOFF_TITLE = "番外"
 LARK = os.environ.get("LARK_BIN", "lark-cli")
 PROFILE = os.environ.get("LARK_PROFILE", "n8n-cli")
 STATE_PATH = os.path.join(ROOT, "scripts", "feishu_wiki_state.json")
 
-# 主线：文件名 stem -> 标题（与已入库的标题一致，保证按标题对账能命中）
 MAINLINE_TITLES = {
     "三更道场_第零期_缘起":   "第零期 · 缘起 · 借你一双慧眼",
     "三更道场_第一期_丹":     "第一期 · 道名 · 丹 ♈",
@@ -53,33 +54,22 @@ MAINLINE_TITLES = {
 
 
 def lark(args):
-    """调用 lark-cli，返回 data（失败抛异常）。"""
-    p = subprocess.run(
-        [LARK, "--profile", PROFILE, *args, "--as", "user", "--format", "json"],
-        cwd=ROOT, capture_output=True, text=True)
+    p = subprocess.run([LARK, "--profile", PROFILE, *args, "--as", "user", "--format", "json"],
+                       cwd=ROOT, capture_output=True, text=True)
     try:
         d = json.loads(p.stdout.strip())
     except Exception:
         raise RuntimeError(f"lark-cli 非 JSON 输出: {p.stdout[:200]} {p.stderr[:200]}")
     if not d.get("ok"):
         raise RuntimeError(f"lark-cli 失败: {json.dumps(d.get('error', {}), ensure_ascii=False)[:300]}")
-    # 部分 shortcut 把结果放在顶层（无 data 包装）
     return d.get("data") if isinstance(d.get("data"), dict) else d
 
 
-def sha256(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(65536), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def container_children():
-    """列出容器下已有子节点：title -> node_token（分页，page_size 上限 50）。"""
+def children(parent_token):
+    """parent 下子节点：title -> node_token（分页，page_size 上限 50）。"""
     out, token = {}, None
     while True:
-        params = {"parent_node_token": CONTAINER, "page_size": 50}
+        params = {"parent_node_token": parent_token, "page_size": 50}
         if token:
             params["page_token"] = token
         data = lark(["api", "GET", f"/open-apis/wiki/v2/spaces/{SPACE_ID}/nodes",
@@ -96,27 +86,46 @@ def container_children():
     return out
 
 
-def collect_sources(include_spinoff):
-    files = sorted(glob.glob(os.path.join(ROOT, "docs", "三更道场_*正稿_普通话版.md")))
-    if include_spinoff:
-        files += sorted(glob.glob(os.path.join(ROOT, "docs", "spinoff_*", "**", "*.md"), recursive=True))
-    out = []
-    for f in files:
-        rel = os.path.relpath(f, ROOT)
+def ensure_dir_node(parent_token, title, cache):
+    """确保 parent 下存在名为 title 的容器节点，返回其 node_token。"""
+    key = (parent_token, title)
+    if key in cache:
+        return cache[key]
+    kids = children(parent_token)
+    node = kids.get(title)
+    if not node:
+        data = lark(["wiki", "+node-create", "--space-id", SPACE_ID,
+                     "--parent-node-token", parent_token, "--title", title])
+        node = data.get("node_token")
+        print(f"[dir ] + {title} -> {node}")
+    cache[key] = node
+    return node
+
+
+def sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def collect(include_spinoff):
+    """返回 [(rel_path, title, parent_resolver)]；parent_resolver 只有番外需要。"""
+    items = []
+    for f in sorted(glob.glob(os.path.join(ROOT, "docs", "三更道场_*正稿_普通话版.md"))):
         stem = os.path.splitext(os.path.basename(f))[0]
-        # 「前传」与「第零期」字节相同，只保留第零期（与 prepare_hugo_content.py 一致）
-        if "前传" in stem and os.path.basename(os.path.dirname(f)) == "docs":
+        if "前传" in stem:      # 与「第零期」字节相同，只保留第零期
             continue
         key = stem[:-len("_正稿_普通话版")] if stem.endswith("_正稿_普通话版") else stem
-        if key in MAINLINE_TITLES:
-            title = MAINLINE_TITLES[key]
-        elif os.sep + "spinoff_" in f:
+        items.append((os.path.relpath(f, ROOT), MAINLINE_TITLES.get(key, stem), None))
+    if include_spinoff:
+        for f in sorted(glob.glob(os.path.join(ROOT, "docs", "spinoff_*", "**", "*.md"), recursive=True)):
             series = os.path.basename(os.path.dirname(f))
-            title = f"{series}｜{stem}"
-        else:
-            title = stem
-        out.append((rel, title, f))
-    return out
+            stem = os.path.splitext(os.path.basename(f))[0]
+            rel = os.path.relpath(f, ROOT)
+            items.append((rel, f"{series}｜{stem}", series))
+    return items
 
 
 def main():
@@ -125,26 +134,24 @@ def main():
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    state = {}
-    if os.path.exists(STATE_PATH):
-        state = json.load(open(STATE_PATH, encoding="utf-8"))
+    state = json.load(open(STATE_PATH, encoding="utf-8")) if os.path.exists(STATE_PATH) else {}
+    dir_cache = {}
+    spinoff_root = None
+    if args.include_spinoff and not args.dry_run:
+        spinoff_root = ensure_dir_node(CONTAINER, SPINOFF_TITLE, dir_cache)
 
-    by_title = container_children()
-    print(f"容器已有 {len(by_title)} 个子节点")
-
-    seen_sha = {}
-    created = updated = skipped = 0
-    for rel, title, path in collect_sources(args.include_spinoff):
-        digest = sha256(path)
+    seen_sha, created, updated, skipped = {}, 0, 0, 0
+    for rel, title, series in collect(args.include_spinoff):
+        digest = sha256(os.path.join(ROOT, rel))
         if digest in seen_sha:
-            print(f"[dup ] {title}（与 {seen_sha[digest]} 内容相同，跳过）")
             skipped += 1
             continue
         seen_sha[digest] = rel
 
-        node = by_title.get(title) or (state.get(rel, {}) or {}).get("node_token")
-        if state.get(rel, {}).get("sha256") == digest and node:
-            print(f"[skip] {title}")
+        entry = state.get(rel, {})
+        node = entry.get("node_token")
+
+        if entry.get("sha256") == digest and node:
             skipped += 1
             continue
 
@@ -152,22 +159,21 @@ def main():
             print(f"[plan] {'update' if node else 'create'} {title}")
             continue
 
-        if node:
+        if node:  # 已存在：整篇覆盖
             lark(["docs", "+update", "--doc", node, "--command", "overwrite",
                   "--doc-format", "markdown", "--content", f"@{rel}"])
-            obj = state.get(rel, {}).get("obj_token")
+            obj = entry.get("obj_token")
             updated += 1
-            print(f"[upd ] {title}")
         else:
+            parent = ensure_dir_node(spinoff_root, series, dir_cache) if series else CONTAINER
             data = lark(["docs", "+create", "--doc-format", "markdown",
                          "--title", title, "--content", f"@{rel}"])
-            doc_id = (data.get("document") or {}).get("document_id")
-            mv = lark(["wiki", "+move", "--obj-type", "docx", "--obj-token", doc_id,
-                       "--target-space-id", SPACE_ID, "--target-parent-token", CONTAINER])
+            obj = (data.get("document") or {}).get("document_id")
+            mv = lark(["wiki", "+move", "--obj-type", "docx", "--obj-token", obj,
+                       "--target-space-id", SPACE_ID, "--target-parent-token", parent])
             node = mv.get("node_token")
-            obj = doc_id
             created += 1
-            print(f"[new ] {title} node={node}")
+        print(f"[{'upd ' if entry else 'new '}] {title}")
 
         state[rel] = {"title": title, "node_token": node, "obj_token": obj, "sha256": digest}
         json.dump(state, open(STATE_PATH, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
