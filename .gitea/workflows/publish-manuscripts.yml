@@ -35,14 +35,16 @@ jobs:
         if: env.NO_CHANGE != '1'
         env:
           N8N_WEBHOOK: ${{ secrets.N8N_MANUSCRIPTS_WEBHOOK }}
+          FEISHU_SECRET: ${{ secrets.FEISHU_MANUSCRIPTS_SECRET }}
         run: |
           set -euo pipefail
           if [ -z "${N8N_WEBHOOK:-}" ]; then
             echo "N8N_MANUSCRIPTS_WEBHOOK 未配置，跳过通知"
             exit 0
           fi
+          # 飞书自定义机器人 加签 在 Actions 侧计算：密钥只存 Actions secret，不进 n8n、不进 git
           python3 - <<'PY' > /tmp/manuscripts_payload.json
-          import json, os
+          import base64, hashlib, hmac, json, os, time
           files = []
           try:
               with open("/tmp/manuscripts_changed.txt", encoding="utf-8") as f:
@@ -58,6 +60,15 @@ jobs:
               "changed_files": files,
               "compare_url": "https://gitea.capitaltrain.cn/seekkey/kunpengzhi-podcast/compare/main...manuscripts",
           }
+          secret = os.environ.get("FEISHU_SECRET") or ""
+          if secret:
+              ts = str(int(time.time()))
+              payload["timestamp"] = ts
+              payload["sign"] = base64.b64encode(
+                  hmac.new(f"{ts}\n{secret}".encode("utf-8"), b"", hashlib.sha256).digest()
+              ).decode("utf-8")
+          else:
+              print("WARN: FEISHU_MANUSCRIPTS_SECRET 未配置，飞书 加签 会失败", file=__import__("sys").stderr)
           print(json.dumps(payload, ensure_ascii=False))
           PY
           # 通知为尽力而为：分支已推送成功，webhook 失败不应把同步判成失败
