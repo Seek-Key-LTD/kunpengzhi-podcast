@@ -1,0 +1,87 @@
+name: Pull Feishu Wiki Changes
+
+# 飞书知识库 → 仓库（pull 方向）。别人在知识库里改的内容，拉回来开 PR 人工过目。
+# 冲突策略：两边都改 → 飞书优先（本 job 拉回即覆盖仓库；push 侧见 revision 变过会 hold）。
+#
+# 判定依据：state 里每篇记的 revision_id。只有飞书 doc revision 变了才拉，
+# 自己推上去造成的 revision 变化会被 push job 写回 state，不会被这里误判。
+#
+# 前置：同 sync-feishu.yml（raccoon 上 lark-cli + profile n8n-cli）。
+
+on:
+  schedule:
+    # 每 10 分钟拉一次
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: feishu-wiki-sync
+  cancel-in-progress: false
+
+jobs:
+  pull:
+    name: Feishu wiki → repo (PR)
+    runs-on: [raccoon]
+    steps:
+      - name: 检出仓库
+        env:
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          REPO="https://x-access-token:$GIT_TOKEN@gitea.capitaltrain.cn/seekkey/kunpengzhi-podcast"
+          DEST="$HOME/_work/kunpengzhi-podcast-pull/kunpengzhi-podcast"
+          mkdir -p "$(dirname "$DEST")"
+          if [ -d "$DEST/.git" ]; then
+            git -C "$DEST" remote set-url origin "$REPO"
+            git -C "$DEST" fetch --quiet origin main
+            git -C "$DEST" checkout --quiet -B main origin/main
+            git -C "$DEST" reset --hard --quiet origin/main
+          else
+            git clone --quiet "$REPO" "$DEST"
+          fi
+          echo "WORKSPACE=$DEST" >> "$GITHUB_ENV"
+
+      - name: 前置检查（lark-cli 登录态）
+        run: |
+          set -euo pipefail
+          if ! command -v lark-cli >/dev/null 2>&1; then
+            echo "SKIP: 本机未安装 lark-cli"; echo "SKIP_PULL=1" >> "$GITHUB_ENV"; exit 0
+          fi
+          if ! lark-cli --profile n8n-cli auth status >/dev/null 2>&1; then
+            echo "SKIP: profile n8n-cli 未登录"; echo "SKIP_PULL=1" >> "$GITHUB_ENV"; exit 0
+          fi
+
+      - name: 拉回飞书改动
+        if: env.SKIP_PULL != '1'
+        working-directory: ${{ env.WORKSPACE }}
+        run: |
+          set -euo pipefail
+          python3 scripts/sync_feishu_wiki.py --pull --changed-list /tmp/feishu_changed.txt
+
+      - name: 开 PR
+        if: env.SKIP_PULL != '1'
+        working-directory: ${{ env.WORKSPACE }}
+        env:
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ ! -s /tmp/feishu_changed.txt ]; then
+            echo "无飞书侧改动，跳过"
+            exit 0
+          fi
+          N=$(grep -c . /tmp/feishu_changed.txt || true)
+          echo "拉回改动 $N 篇"
+          git checkout --quiet -B feishu-sync
+          git add docs/ scripts/feishu_wiki_state.json
+          git -c user.name='feishu-sync-bot' -c user.email='ci@capitaltrain.cn' \
+            commit -m "feishu-sync: 知识库改动回流（$N 篇） [skip ci]"
+          git push --quiet --force-with-lease origin feishu-sync
+          # 已有 PR 时重复创建会报错，忽略即可（PR 会随分支更新）
+          curl -sS -o /dev/null -w "PR create: %{http_code}\n" \
+            -X POST -H "Authorization: token $GIT_TOKEN" -H 'Content-Type: application/json' \
+            -d "{\"head\":\"feishu-sync\",\"base\":\"main\",\"title\":\"feishu-sync: 知识库改动回流\",\"body\":\"由 pull-feishu.yml 自动开；冲突策略=飞书优先。改动清单见分支提交。\"}" \
+            "https://gitea.capitaltrain.cn/api/v1/repos/seekkey/kunpengzhi-podcast/pulls" || true

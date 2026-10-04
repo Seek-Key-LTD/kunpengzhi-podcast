@@ -1,6 +1,7 @@
 name: Sync Manuscripts to Feishu Wiki
 
-# 把仓库文字稿增量同步进飞书知识库（repo → Feishu wiki）。
+# 仓库文字稿 → 飞书知识库（push 方向）。
+# 反向（飞书改动 → 仓库开 PR）见 pull-feishu.yml。
 #
 # 前置（一次性，跑在 raccoon 上，该 runner 以 ben 运行、HOME=/home/ben）：
 #   1) lark-cli 已装（/usr/local/bin/lark-cli）；
@@ -24,7 +25,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: feishu-wiki-sync
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -53,8 +58,7 @@ jobs:
         run: |
           set -euo pipefail
           if ! command -v lark-cli >/dev/null 2>&1; then
-            echo "SKIP: 本机未安装 lark-cli"
-            echo "SKIP_SYNC=1" >> "$GITHUB_ENV"; exit 0
+            echo "SKIP: 本机未安装 lark-cli"; echo "SKIP_SYNC=1" >> "$GITHUB_ENV"; exit 0
           fi
           if ! lark-cli --profile n8n-cli auth status >/dev/null 2>&1; then
             echo "SKIP: profile n8n-cli 未登录（需一次性设备码授权，见本 workflow 顶部注释）"
@@ -65,3 +69,18 @@ jobs:
         if: env.SKIP_SYNC != '1'
         working-directory: ${{ env.WORKSPACE }}
         run: python3 scripts/sync_feishu_wiki.py --include-spinoff
+
+      - name: 回写同步基线（state）
+        if: env.SKIP_SYNC != '1'
+        working-directory: ${{ env.WORKSPACE }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- scripts/feishu_wiki_state.json; then
+            echo "state 无变化，跳过"
+            exit 0
+          fi
+          git add scripts/feishu_wiki_state.json
+          git -c user.name='feishu-sync-bot' -c user.email='ci@capitaltrain.cn' \
+            commit -m "chore(feishu): 更新同步基线 [skip ci]"
+          git push --quiet origin HEAD:main
+          echo "state 已回写 main"

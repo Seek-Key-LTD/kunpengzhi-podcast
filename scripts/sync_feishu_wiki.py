@@ -1,20 +1,27 @@
 #!/usr/bin/env python3
-"""把仓库文字稿同步到飞书知识库（repo → Feishu wiki）。
+"""仓库文字稿 <-> 飞书知识库 双向同步。
 
-- 目标：公开知识库 space_id=7692783315471846383。
-- 结构：容器「三更道场 · 文字稿」
-            ├─ 主线正稿（15 篇）
-            └─「番外」
-                 └─「<系列>」
-                       └─ 该系列文稿
-- 手段：调用本机 lark-cli 的用户身份（公开知识库应用 tenant 写不进去）。
-- 幂等：按标题对账；sha256 未变则跳过；已存在则 `docs +update --command overwrite`，否则 `docs +create` + `wiki +move`。
-- 状态：scripts/feishu_wiki_state.json（rel_path -> {title,node_token,obj_token,sha256}）。
+方向：
+  push（默认）：仓库 main 的文稿 → 飞书知识库
+  pull：       飞书知识库的改动 → 仓库工作区（供 CI 开 PR）
+
+幂等与防抖：
+  每条文档在 state 里记 {node_token, obj_token, sha256, revision_id}。
+  - 仓库文件 sha256 != state.sha256            → 仓库改了 → 推
+  - 飞书 doc revision_id != state.revision_id  → 飞书改了 → 拉
+  推/拉之后都会把新的 sha 与 revision 写回 state，所以自己造成的 revision 变化
+  不会被下一轮当成"别人改的"（防来回抖动）。
+
+冲突策略：两边都改 → **飞书优先**（pull 覆盖仓库；push 侧看到 revision 变过就不推）。
+代价：飞书导出的 markdown 与仓库原文有系统性格式差异（行尾硬换行、引用块层级等），
+      被拉回过的文档格式会变成"飞书风格"。
 
 用法：
-    python3 scripts/sync_feishu_wiki.py                    # 主线
-    python3 scripts/sync_feishu_wiki.py --include-spinoff  # 主线 + 番外
-    python3 scripts/sync_feishu_wiki.py --dry-run
+  python3 scripts/sync_feishu_wiki.py                 # 推送（主线）
+  python3 scripts/sync_feishu_wiki.py --include-spinoff
+  python3 scripts/sync_feishu_wiki.py --pull          # 拉回（写入工作区）
+  python3 scripts/sync_feishu_wiki.py --pull --changed-list /tmp/changed.txt
+  python3 scripts/sync_feishu_wiki.py --dry-run
 
 环境变量：LARK_BIN / LARK_PROFILE / FEISHU_SPACE_ID / FEISHU_CONTAINER
 """
@@ -65,8 +72,35 @@ def lark(args):
     return d.get("data") if isinstance(d.get("data"), dict) else d
 
 
+def doc_revision(obj_token):
+    """取飞书文档当前 revision_id（轻量，不拉正文）。"""
+    if not obj_token:
+        return None
+    try:
+        d = lark(["api", "GET", f"/open-apis/docx/v1/documents/{obj_token}"])
+        doc = (d.get("document") if isinstance(d, dict) else None) or \
+              ((d.get("data") or {}).get("document") if isinstance(d, dict) else None) or {}
+        return doc.get("revision_id")
+    except Exception as e:
+        print(f"  [warn] revision 取失败 {obj_token}: {e}")
+        return None
+
+
+def fetch_markdown(node_token):
+    d = lark(["docs", "+fetch", "--doc", node_token, "--doc-format", "markdown"])
+    doc = (d.get("document") if isinstance(d, dict) else None) or {}
+    return doc.get("content", ""), doc.get("revision_id")
+
+
+def sha256_bytes(b):
+    return hashlib.sha256(b).hexdigest()
+
+
+def sha256_file(path):
+    return sha256_bytes(open(path, "rb").read())
+
+
 def children(parent_token):
-    """parent 下子节点：title -> node_token（分页，page_size 上限 50）。"""
     out, token = {}, None
     while True:
         params = {"parent_node_token": parent_token, "page_size": 50}
@@ -87,7 +121,6 @@ def children(parent_token):
 
 
 def ensure_dir_node(parent_token, title, cache):
-    """确保 parent 下存在名为 title 的容器节点，返回其 node_token。"""
     key = (parent_token, title)
     if key in cache:
         return cache[key]
@@ -102,20 +135,11 @@ def ensure_dir_node(parent_token, title, cache):
     return node
 
 
-def sha256(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(65536), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
 def collect(include_spinoff):
-    """返回 [(rel_path, title, parent_resolver)]；parent_resolver 只有番外需要。"""
     items = []
     for f in sorted(glob.glob(os.path.join(ROOT, "docs", "三更道场_*正稿_普通话版.md"))):
         stem = os.path.splitext(os.path.basename(f))[0]
-        if "前传" in stem:      # 与「第零期」字节相同，只保留第零期
+        if "前传" in stem:
             continue
         key = stem[:-len("_正稿_普通话版")] if stem.endswith("_正稿_普通话版") else stem
         items.append((os.path.relpath(f, ROOT), MAINLINE_TITLES.get(key, stem), None))
@@ -123,18 +147,20 @@ def collect(include_spinoff):
         for f in sorted(glob.glob(os.path.join(ROOT, "docs", "spinoff_*", "**", "*.md"), recursive=True)):
             series = os.path.basename(os.path.dirname(f))
             stem = os.path.splitext(os.path.basename(f))[0]
-            rel = os.path.relpath(f, ROOT)
-            items.append((rel, f"{series}｜{stem}", series))
+            items.append((os.path.relpath(f, ROOT), f"{series}｜{stem}", series))
     return items
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--include-spinoff", action="store_true")
-    ap.add_argument("--dry-run", action="store_true")
-    args = ap.parse_args()
+def load_state():
+    return json.load(open(STATE_PATH, encoding="utf-8")) if os.path.exists(STATE_PATH) else {}
 
-    state = json.load(open(STATE_PATH, encoding="utf-8")) if os.path.exists(STATE_PATH) else {}
+
+def save_state(state):
+    json.dump(state, open(STATE_PATH, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+
+
+def do_push(args):
+    state = load_state()
     dir_cache = {}
     spinoff_root = None
     if args.include_spinoff and not args.dry_run:
@@ -142,27 +168,29 @@ def main():
 
     seen_sha, created, updated, skipped = {}, 0, 0, 0
     for rel, title, series in collect(args.include_spinoff):
-        digest = sha256(os.path.join(ROOT, rel))
+        digest = sha256_file(os.path.join(ROOT, rel))
         if digest in seen_sha:
             skipped += 1
             continue
         seen_sha[digest] = rel
-
         entry = state.get(rel, {})
-        node = entry.get("node_token")
+        node, obj = entry.get("node_token"), entry.get("obj_token")
 
         if entry.get("sha256") == digest and node:
             skipped += 1
             continue
-
+        if entry.get("revision_id") and doc_revision(obj) != entry.get("revision_id"):
+            # 飞书端也变了 → 飞书优先，本轮不推（交给 pull）
+            print(f"[hold] {title}（飞书已改，飞书优先，等 pull）")
+            skipped += 1
+            continue
         if args.dry_run:
             print(f"[plan] {'update' if node else 'create'} {title}")
             continue
 
-        if node:  # 已存在：整篇覆盖
+        if node:
             lark(["docs", "+update", "--doc", node, "--command", "overwrite",
                   "--doc-format", "markdown", "--content", f"@{rel}"])
-            obj = entry.get("obj_token")
             updated += 1
         else:
             parent = ensure_dir_node(spinoff_root, series, dir_cache) if series else CONTAINER
@@ -174,11 +202,87 @@ def main():
             node = mv.get("node_token")
             created += 1
         print(f"[{'upd ' if entry else 'new '}] {title}")
+        state[rel] = {"title": title, "node_token": node, "obj_token": obj,
+                      "sha256": digest, "revision_id": doc_revision(obj)}
+        save_state(state)
+    print(f"\npush 完成：新增 {created} / 更新 {updated} / 跳过 {skipped}")
 
-        state[rel] = {"title": title, "node_token": node, "obj_token": obj, "sha256": digest}
-        json.dump(state, open(STATE_PATH, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 
-    print(f"\n完成：新增 {created} / 更新 {updated} / 跳过 {skipped}")
+def do_pull(args):
+    state = load_state()
+    changed = []
+    for rel, entry in sorted(state.items()):
+        node, obj = entry.get("node_token"), entry.get("obj_token")
+        if not node:
+            continue
+        rev = doc_revision(obj)
+        if rev is None or rev == entry.get("revision_id"):
+            continue
+        md, new_rev = fetch_markdown(node)
+        if not md.strip():
+            print(f"[warn] {rel} 拉回为空，跳过")
+            continue
+        path = os.path.join(ROOT, rel)
+        old = open(path, encoding="utf-8").read() if os.path.exists(path) else ""
+        if md == old:
+            entry["revision_id"] = new_rev or rev
+            save_state(state)
+            continue
+        changed.append(rel)
+        print(f"[pull] {rel}  (rev {entry.get('revision_id')} -> {new_rev or rev})")
+        if not args.dry_run:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            open(path, "w", encoding="utf-8").write(md)
+            entry["sha256"] = sha256_bytes(md.encode("utf-8"))
+            entry["revision_id"] = new_rev or rev
+            save_state(state)
+    if args.changed_list:
+        open(args.changed_list, "w", encoding="utf-8").write("\n".join(changed) + ("\n" if changed else ""))
+    print(f"\npull 完成：仓库侧改动 {len(changed)} 篇")
+    return 0
+
+
+def do_baseline(args):
+    """只记录当前飞书 revision 作为基线，不拉正文。
+    用途：首次启用 pull 时，避免把"我们自己刚推上去的内容"当成外部改动全量拉回。"""
+    state = load_state()
+    n = 0
+    for rel, entry in sorted(state.items()):
+        obj = entry.get("obj_token")
+        if not obj and entry.get("node_token"):
+            # 早期手工导入的条目没记 obj_token，从 wiki 节点补回来
+            try:
+                d = lark(["wiki", "+node-get", "--node-token", entry["node_token"]])
+                obj = d.get("obj_token")
+                if obj and not args.dry_run:
+                    entry["obj_token"] = obj
+            except Exception as e:
+                print(f"[warn] {rel} 取 obj_token 失败: {e}")
+        if not obj:
+            continue
+        rev = doc_revision(obj)
+        if rev is not None and rev != entry.get("revision_id"):
+            print(f"[base] {rel}: revision -> {rev}")
+            if not args.dry_run:
+                entry["revision_id"] = rev
+                save_state(state)
+            n += 1
+    print(f"\nbaseline 完成：{n} 条更新 revision")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--include-spinoff", action="store_true")
+    ap.add_argument("--pull", action="store_true", help="飞书 → 仓库")
+    ap.add_argument("--baseline", action="store_true", help="只记 revision 基线，不拉正文")
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--changed-list", default=None, help="把拉回改动的文件清单写到此路径")
+    args = ap.parse_args()
+    if args.baseline:
+        return do_baseline(args)
+    if args.pull:
+        return do_pull(args)
+    return do_push(args)
 
 
 if __name__ == "__main__":
