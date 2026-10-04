@@ -1,0 +1,69 @@
+name: Publish Manuscripts Branch
+
+# 把 main 的「文稿投影」（主线正稿 + 番外文稿）增量同步到同仓 orphan 分支 manuscripts，
+# 成功后 POST 给 n8n，由 n8n 负责飞书通知等下游分发。
+#
+# permissions: 需要 contents: write 才有权向本仓推送 manuscripts 分支（secrets.GITHUB_TOKEN）。
+#   若仓库自动 token 无写权限，回退：建专用 PAT secret（如 MANUSCRIPTS_PUSH_TOKEN）替换下方 GIT_TOKEN。
+# secrets: N8N_MANUSCRIPTS_WEBHOOK —— n8n 入站 webhook URL；未配置时仅跳过通知，不影响分支同步。
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+  schedule:
+    # 21:00 UTC = 05:00 北京
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Sync manuscripts projection to orphan branch
+    runs-on: pve
+    steps:
+      - name: Sync manuscripts branch
+        env:
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/publish_manuscripts.sh
+
+      - name: Notify n8n
+        if: env.NO_CHANGE != '1'
+        env:
+          N8N_WEBHOOK: ${{ secrets.N8N_MANUSCRIPTS_WEBHOOK }}
+        run: |
+          set -euo pipefail
+          if [ -z "${N8N_WEBHOOK:-}" ]; then
+            echo "N8N_MANUSCRIPTS_WEBHOOK 未配置，跳过通知"
+            exit 0
+          fi
+          python3 - <<'PY' > /tmp/manuscripts_payload.json
+          import json, os
+          files = []
+          try:
+              with open("/tmp/manuscripts_changed.txt", encoding="utf-8") as f:
+                  files = [ln.strip() for ln in f if ln.strip()]
+          except FileNotFoundError:
+              pass
+          payload = {
+              "event": "manuscripts.updated",
+              "repo": "seekkey/kunpengzhi-podcast",
+              "branch": "manuscripts",
+              "commit": os.environ.get("COMMIT_SHA", ""),
+              "changed_count": int(os.environ.get("CHANGED_COUNT") or 0),
+              "changed_files": files,
+              "compare_url": "https://gitea.capitaltrain.cn/seekkey/kunpengzhi-podcast/compare/main...manuscripts",
+          }
+          print(json.dumps(payload, ensure_ascii=False))
+          PY
+          # 通知为尽力而为：分支已推送成功，webhook 失败不应把同步判成失败
+          if curl -sfS -X POST -H 'Content-Type: application/json' \
+               --data @/tmp/manuscripts_payload.json "$N8N_WEBHOOK"; then
+            echo "notified n8n: ${CHANGED_COUNT} files @ ${COMMIT_SHA}"
+          else
+            echo "WARN: n8n webhook 投递失败（分支已成功推送）" >&2
+          fi
