@@ -1,0 +1,48 @@
+name: Sync GitHub Mirror
+
+# Gitea 是唯一写入口；GitHub 是只出不进的公开镜像。
+# **只镜像 hugo（站点载体）→ GitHub main**；main / 其它分支一律不上 GitHub。
+# 镜像走 SSH（git@github.com），复用 runner(raccoon) ~/.ssh 已认证的部署密钥——不用 HTTPS token，无凭据漂移。
+# 本文件同时存在于 main 与 hugo 分支：
+#   · hugo 分支上：push:hugo 立即触发镜像；
+#   · main 分支上：schedule/dispatch 走默认分支的兜底镜像。
+# 推送到 GitHub 的 ref 只有 main；推前做祖先校验，远端领先即报错退出（不强推覆盖公开镜像）。
+
+on:
+  push:
+    branches: [hugo]
+  schedule:
+    # 22:45 UTC = 06:45 北京
+    - cron: "45 22 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror-hugo:
+    name: Mirror hugo → GitHub main
+    runs-on: [raccoon]
+    steps:
+      - name: Checkout hugo (full history)
+        uses: actions/checkout@v4
+        with:
+          ref: hugo
+          fetch-depth: 0
+
+      - name: Fast-forward public mirror via SSH
+        run: |
+          set -euo pipefail
+          git remote remove github-mirror 2>/dev/null || true
+          git remote add github-mirror "git@github.com:Seek-Key-LTD/kunpengzhi-podcast.git"
+          git fetch github-mirror refs/heads/main:refs/remotes/github-mirror/main || true
+          if git merge-base --is-ancestor github-mirror/main HEAD 2>/dev/null; then
+            git push github-mirror HEAD:refs/heads/main
+          else
+            echo 'GitHub mirror HEAD is ahead of Gitea hugo — aborting to avoid clobbering public mirror' >&2
+            exit 1
+          fi
